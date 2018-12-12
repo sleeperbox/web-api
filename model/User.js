@@ -5,6 +5,9 @@ const UserSchema = new Schema({
   email: {
     type: String
   },
+  username: {
+    type: String
+  },
   first_name: {
     type: String
   },
@@ -12,13 +15,14 @@ const UserSchema = new Schema({
     type: String
   },
   password:{
-    type: String
+    type: String,
+    min: 6
   },
   token:{
     type: String
   },
   auth:{
-    type: String
+    type: Boolean
   }
 })
 
