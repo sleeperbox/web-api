@@ -3,6 +3,7 @@ const router = express.Router()
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const bcrypt = require('bcrypt');
+const randtoken = require('rand-token')
 const User = require('../model/User')
 
 router.use(bodyParser.urlencoded({
@@ -19,17 +20,24 @@ router.get('/', (req, res) =>{
 // api login
 router.post('/login', (req, res) => {
     let email = req.body.email
-    let username = req.body.username
     let password = req.body.password
-    User.findOne({ email } || { username } , function (err, user) {
-        let token = user.token
-        let dbpassword = user.password
-        bcrypt.compare(dbpassword,password) &&  token != '' ?
-        User.findOneAndUpdate({email} || { username }, {auth:true}, () => {
-            console.log(email,'Telah Login')        
-            res.send('Anda Telah Login')
-        })
-        : res.send('Password Salah')
+    User.findOne({ email }, function (err, user) {
+        if(user){
+            let token = user.token
+            let emailuser = user.email
+            let dbpassword = user.password
+            var cekpassword = bcrypt.compareSync(password, dbpassword)
+                if(cekpassword === true && token != ''){ 
+                    console.log(emailuser, 'Telah Login')
+                    res.send('Anda Berhasil Login')
+                }else{
+                    console.log(emailuser, 'Salah Password')
+                    res.send('Password Salah')
+                }
+        }else{
+            console.log(email, 'Tidak Ada')
+            res.send('Email Tidak Di Temukan')
+        }
     });
 })
 
@@ -41,17 +49,17 @@ router.post('/register', (req, res) => {
     let last_name = req.body.last_name
     const salt = bcrypt.genSaltSync(10);
     let password = bcrypt.hashSync(req.body.password, salt)
-    let token = 'qwe'
+    let token = randtoken.generate(10);
     let auth = true
-    let akun = [{
-        "email" : email,
-        "username" : username,
-        "first_name" : first_name,
-        "last_name" : last_name,
-        "password" : password,
-        "token" : token,
-        "auth" : auth
-    }]
+    let akun = {
+        email : email,
+        username : username,
+        first_name : first_name,
+        last_name : last_name,
+        password : password,
+        token : token,
+        auth : auth
+    }
     var user = new User(akun)
     user.save()
     .then( () => {
