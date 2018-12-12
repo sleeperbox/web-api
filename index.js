@@ -11,8 +11,15 @@ const app = express();
 
 app.use("/api", require("./routes/user"));
 app.use("/api", require("./routes/bypass"));
-app.use("/api/profile", require("./routes/profile/button-menu"));
+
+app.use("/api/profile", require("./routes/profile/buttom-menu"));
 app.use("/api/profile", require("./routes/profile/more-category"));
+app.use("/api/profile", require("./routes/profile/picture"));
+app.use("/api/profile", require("./routes/profile/activity"));
+app.use("/api/profile", require("./routes/profile/notification"));
+app.use("/api/profile", require("./routes/profile/friends"));
+app.use("/api/profile", require("./routes/profile/setting"));
+app.use("/api/profile", require("./routes/profile/message"));
 
 app.use(morgan("combine"));
 app.use(cors());
