@@ -24,7 +24,7 @@ router.post('/login', (req, res) => {
     User.findOne({ email } || { username } , function (err, user) {
         let token = user.token
         let dbpassword = user.password
-        dbpassword === password &&  token != '' ?
+        bcrypt.compare(dbpassword,password) &&  token != '' ?
         User.findOneAndUpdate({email} || { username }, {auth:true}, () => {
             console.log(email,'Telah Login')        
             res.send('Anda Telah Login')
