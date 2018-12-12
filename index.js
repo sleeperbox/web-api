@@ -1,8 +1,31 @@
-const express = require('express');
-const os = require('os');
+const express = require('express')
+const morgan = require('morgan')
+const bodyParser = require('body-parser')
+const cors = require('cors')
+const mongoose = require('mongoose')
 
-const app = express();
+mongoose.connect('mongodb://localhost:27017/way')
+mongoose.Promise = global.Promise
 
-app.use(express.static('dist'));
-app.get('/api/getUsername', (req, res) => res.send({ username: os.userInfo().username }));
-app.listen(8080, () => console.log('Listening on port 8080!'));
+const app =  express()
+
+app.use('/api', require('./routes/user'))
+app.use('/api', require('./routes/bypass'))
+app.use(morgan('combine'))
+app.use(cors())
+app.use(bodyParser.urlencoded({
+    extended: false
+  }))
+
+app.use(bodyParser.json({ type: 'application/*+json' }))
+
+app.get('/', (req, res) => {
+    console.log('ok getting / ')
+        res.send([{
+            "msg": "sukses"
+    }]);
+})
+
+app.listen(process.env.PORT || 8080, function(){
+    console.log('starting server 8080...')
+})
