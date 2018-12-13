@@ -81,9 +81,9 @@ router.get('/user', (req, res) => {
 })
 
 //api get all friend
-router.get('/friend/:username', (req, res) => {
-    let username = req.params.username
-    Friend.find({ username }, (err, obj_user) => {
+router.get('/friend?:email', (req, res) => {
+    let email = req.params.email
+    Friend.find({ email }, (err, obj_user) => {
         var userMap = {}
         obj_user.forEach(function(users) {
         userMap[users._id] = users
@@ -93,7 +93,7 @@ router.get('/friend/:username', (req, res) => {
 })
 
 //api add friend
-router.get('/addfriend/:email-:email_add', (req, res) => {
+router.get('/addfriend?:email&:email_add', (req, res) => {
     let email = req.params.email
     let email_add = req.params.email_add
     let teman = {
@@ -110,10 +110,10 @@ router.get('/addfriend/:email-:email_add', (req, res) => {
 })
 
 //api notif add
-router.get('/addfriend/:username', (req, res) => {
-    let username_friend = req.params.username
+router.get('/addfriend?:email', (req, res) => {
+    let email_friend = req.params.email
     let status = 'pending'
-    Friend.find({ username_friend } && { status }, (err, obj_user) => {
+    Friend.find({ email_friend } && { status }, (err, obj_user) => {
         var userMap = {}
         obj_user.forEach(function(users) {
         userMap[users._id] = users
@@ -123,32 +123,34 @@ router.get('/addfriend/:username', (req, res) => {
 })
 
 //api confirm friend
-router.get('/confirm/friend/:username-:username_add', (req, res) => {
-    let username = req.params.username
-    let username_friend = req.params.username_add
+router.get('/confirm/friend?:email&:email_add', (req, res) => {
+    let email = req.params.email
+    let email_friend = req.params.email_add
     let status = 'confirm'
     let teman = {
-        username : username,
-        username_friend : username_friend,
+        email : email,
+        email_friend : email_friend,
         status : "confirm"
     }
     var friend = new Friend(teman)
     friend.save()
-    Friend.findOneAndUpdate(username, username_friend, {status}, () => {
+    Friend.findOneAndUpdate(email, email_friend, {status}, () => {
         let teman = {
-            username : username_friend,
-            username_friend : username,
+            email : email_friend,
+            email_friend : email,
             status : "confirm"
         }
         var friend = new Friend(teman)
         friend.save()
-        console.log(username, 'Telah Berteman Dengan', username_friend)
-        res.send(username, 'Telah Berteman Dengan', username_friend)
+        .then( user => {
+            console.log(email, 'Telah Berteman Dengan', email_friend)
+            res.send(user)
+        })
     })
 })
 
 //api search people
-router.get('/search/people/:email', (req, res) =>{
+router.get('/search/people?:email', (req, res) =>{
     let email = req.params.email
     User.find({ email : { "$ne" : email}}, (err, obj_user) => {
         console.log(email, 'Searching People') 
