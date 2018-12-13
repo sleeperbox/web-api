@@ -5,6 +5,7 @@ const cors = require('cors')
 const bcrypt = require('bcrypt');
 const randtoken = require('rand-token')
 const User = require('../model/User')
+const Friend = require('../model/Friend')
 
 router.use(bodyParser.urlencoded({
     extended: false
@@ -79,11 +80,91 @@ router.get('/user', (req, res) => {
       })
 })
 
+//api get all friend
+router.get('/friend/:username', (req, res) => {
+    let username = req.params.username
+    Friend.find({ username }, (err, obj_user) => {
+        var userMap = {}
+        obj_user.forEach(function(users) {
+        userMap[users._id] = users
+        })
+        res.send(obj_user)
+      })
+})
+
+//api add friend
+router.get('/addfriend/:email-:email_add', (req, res) => {
+    let email = req.params.email
+    let email_add = req.params.email_add
+    let teman = {
+        email : email,
+        email_friend : email_add,
+        status : "pending"
+    }
+    var friend = new Friend(teman)
+    friend.save()
+    .then( teman => {
+        console.log(email_add, 'Di Tambahkan teman oleh' ,email)
+        res.send(teman)
+    })
+})
+
+//api notif add
+router.get('/addfriend/:username', (req, res) => {
+    let username_friend = req.params.username
+    let status = 'pending'
+    Friend.find({ username_friend } && { status }, (err, obj_user) => {
+        var userMap = {}
+        obj_user.forEach(function(users) {
+        userMap[users._id] = users
+        })
+        res.send(obj_user)
+      })
+})
+
+//api confirm friend
+router.get('/confirm/friend/:username-:username_add', (req, res) => {
+    let username = req.params.username
+    let username_friend = req.params.username_add
+    let status = 'confirm'
+    let teman = {
+        username : username,
+        username_friend : username_friend,
+        status : "confirm"
+    }
+    var friend = new Friend(teman)
+    friend.save()
+    Friend.findOneAndUpdate(username, username_friend, {status}, () => {
+        let teman = {
+            username : username_friend,
+            username_friend : username,
+            status : "confirm"
+        }
+        var friend = new Friend(teman)
+        friend.save()
+        console.log(username, 'Telah Berteman Dengan', username_friend)
+        res.send(username, 'Telah Berteman Dengan', username_friend)
+    })
+})
+
+//api search people
+router.get('/search/people/:email', (req, res) =>{
+    let email = req.params.email
+    User.find({ email : { "$ne" : email}}, (err, obj_user) => {
+        console.log(email, 'Searching People') 
+        if(obj_user){
+            res.send(obj_user)
+        }else{
+            res.send(err)
+        }
+    })
+})
+
 router.post('/user/add', function(req, res){
     console.log(req.body)
     var user = new User(req.body)
     user.save()
-    .then(user => {
+    .then( () => {
         res.status(200).json({'user': 'added successfully'})
     })
 })
