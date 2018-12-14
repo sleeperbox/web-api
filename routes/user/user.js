@@ -154,6 +154,40 @@ router.post('/addfriend/status', (req, res) => {
     })
 })
 
+//friend status pending
+router.post('/friend/status/pending', (req, res) => {
+    let email = req.body.email
+    let status = 'pending'
+    Friend.find({ email } && {status}, (err, obj_user) => {
+        var userMap = {}
+        obj_user.forEach(function(users) {
+        userMap[users._id] = users
+        })
+        if(obj_user){
+        res.send(obj_user)
+        }else{
+            res.send(err)
+        }
+      })
+})
+
+//status == friend
+router.post('/friend/status/confirm', (req, res) => {
+    let email = req.body.email
+    let status = 'confirm'
+    Friend.find({ email } && {status}, (err, obj_user) => {
+        var userMap = {}
+        obj_user.forEach(function(users) {
+        userMap[users._id] = users
+        })
+        if(obj_user){
+        res.send(obj_user)
+        }else{
+            res.send(err)
+        }
+      })
+})
+
 //api confirm friend
 router.post('/confirm/friend', (req, res) => {
     let email = req.body.email
