@@ -133,7 +133,7 @@ router.post('/addfriend/notif', (req, res) => {
                 status : status
             }        
             if(email !== email_friend){
-                console.log(email_friend, 'mendapatkan notifikasi pertemanan')
+                console.log(email_friend, 'mendapatkan notifikasi pertemanan dari', email)
                 res.send(notif)
             }
         }else{
