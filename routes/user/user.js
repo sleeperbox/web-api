@@ -113,8 +113,16 @@ router.post('/addfriend', (req, res) => {
     })
 })
 
+//bypass frind request to null
+router.get('/clearfriendstatus', (req, res) => {
+    Friend.updateMany(
+        { status: "" }
+     ).then(res.send('updated.'));
+})
+
 //api notif add
-router.post('/add/friend', (req, res) => {
+/*
+router.post('/addfriend', (req, res) => {
     let email_friend = req.body.email
     let status = 'pending'
     Friend.find({ email_friend } && { status }, (err, obj_user) => {
@@ -125,25 +133,7 @@ router.post('/add/friend', (req, res) => {
         res.send(obj_user)
       })
 })
-
-//api get status friend
-router.post('/addfriend/status', (req, res) => {
-    let email = req.body.email
-    Friend.findOne({ email }, (err, obj_user) => {
-        if(obj_user){
-            let email_friend = obj_user.email_friend
-            let status = obj_user.status
-            let friend = {
-                email_friend : email_friend,
-                status : status
-            }
-            console.log(email_friend, 'Status', status)                
-            res.send(friend)
-        }else{
-            res.send(err)
-        }
-    })
-})
+*/
 
 //api confirm friend
 router.post('/confirm/friend', (req, res) => {
@@ -171,6 +161,32 @@ router.post('/confirm/friend', (req, res) => {
         })
     })
 })
+
+//api get status friend
+router.post('/addfriend/status', (req, res) => {
+    let email = req.body.email
+    Friend.findOne({ email }, (err, obj_user) => {
+        if(obj_user){
+            let email_friend = obj_user.email_friend
+            let status = obj_user.status
+            let friend = {
+                email_friend : email_friend,
+                status : status
+            }
+            console.log(email_friend, 'Status', status)                
+            res.send(friend)
+        }else{
+            res.send(err)
+        }
+    })
+})
+
+router.delete('/clearmongo', function(req, res){
+    User.remove(function(err){
+      if(err) res.json(err);
+        res.send('removed');
+    });
+ });
 
 //api search people
 router.post('/search/people', (req, res) =>{
