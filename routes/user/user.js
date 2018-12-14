@@ -135,6 +135,25 @@ router.post('/addfriend', (req, res) => {
 })
 */
 
+//api get status friend
+router.post('/addfriend/status', (req, res) => {
+    let email = req.body.email
+    Friend.findOne({ email }, (err, obj_user) => {
+        if(obj_user){
+            let email_friend = obj_user.email_friend
+            let status = obj_user.status
+            let friend = {
+                email_friend : email_friend,
+                status : status
+            }
+            console.log(email_friend, 'Status', status)                
+            res.send(friend)
+        }else{
+            res.send(err)
+        }
+    })
+})
+
 //api confirm friend
 router.post('/confirm/friend', (req, res) => {
     let email = req.body.email
