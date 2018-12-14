@@ -9,7 +9,7 @@ mongoose.Promise = global.Promise
 
 const app =  express()
 
-app.use('/api', require('./routes/user'))
+app.use('/api', require('./routes/user/user'))
 app.use('/api', require('./routes/bypass'))
 app.use(morgan('combine'))
 app.use(cors())
