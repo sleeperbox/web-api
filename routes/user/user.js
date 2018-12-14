@@ -30,7 +30,7 @@ router.post('/login', (req, res) => {
             var cekpassword = bcrypt.compareSync(password, dbpassword)
                 if(cekpassword === true && token != ''){ 
                     console.log(emailuser, 'Telah Login')
-                    res.send('Anda Berhasil Login')
+                    res.send(user)
                 }else{
                     console.log(emailuser, 'Salah Password')
                     res.send('Password Salah')
@@ -113,7 +113,15 @@ router.post('/addfriend', (req, res) => {
     })
 })
 
+//bypass frind request to null
+router.get('/clearfriendstatus', (req, res) => {
+    Friend.updateMany(
+        { status: "" }
+     ).then(res.send('updated.'));
+})
+
 //api notif add
+/*
 router.post('/addfriend', (req, res) => {
     let email_friend = req.body.email
     let status = 'pending'
@@ -125,9 +133,10 @@ router.post('/addfriend', (req, res) => {
         res.send(obj_user)
       })
 })
+*/
 
 //api confirm friend
-router.body('/confirm/friend', (req, res) => {
+router.post('/confirm/friend', (req, res) => {
     let email = req.body.email
     let email_friend = req.body.email_add
     let status = 'confirm'
@@ -152,6 +161,13 @@ router.body('/confirm/friend', (req, res) => {
         })
     })
 })
+
+router.delete('/clearmongo', function(req, res){
+    User.remove(function(err){
+      if(err) res.json(err);
+        res.send('removed');
+    });
+ });
 
 //api search people
 router.post('/search/people', (req, res) =>{
