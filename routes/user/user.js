@@ -121,19 +121,26 @@ router.get('/clearfriendstatus', (req, res) => {
 })
 
 //api notif add
-/*
-router.post('/addfriend', (req, res) => {
+router.post('/addfriend/notif', (req, res) => {
     let email_friend = req.body.email
-    let status = 'pending'
-    Friend.find({ email_friend } && { status }, (err, obj_user) => {
-        var userMap = {}
-        obj_user.forEach(function(users) {
-        userMap[users._id] = users
-        })
-        res.send(obj_user)
-      })
+    Friend.findOne({ email_friend : email_friend }, (err, obj_user) => {
+        if(obj_user){
+            let email = obj_user.email
+            let status = obj_user.status
+            let notif = {
+                email : email,
+                email_friend : email_friend,
+                status : status
+            }        
+            if(email !== email_friend){
+                console.log(email_friend, 'mendapatkan notifikasi pertemanan')
+                res.send(notif)
+            }
+        }else{
+            res.send(err)
+        }
+    })
 })
-*/
 
 //api confirm friend
 router.post('/confirm/friend', (req, res) => {
