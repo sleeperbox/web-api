@@ -157,8 +157,7 @@ router.post('/addfriend/status', (req, res) => {
 //friend status pending
 router.post('/friend/status/pending', (req, res) => {
     let email = req.body.email
-    let status = 'pending'
-    Friend.find({ email } && {status}, (err, obj_user) => {
+    Friend.find({ email }, (err, obj_user) => {
         var userMap = {}
         obj_user.forEach(function(users) {
         userMap[users._id] = users
