@@ -5,6 +5,7 @@ const cors = require('cors')
 const bcrypt = require('bcrypt');
 const randtoken = require('rand-token')
 const User = require('../../model/User')
+const SeacrhPeople = require('../../model/SearchPeople')
 
 router.use(bodyParser.urlencoded({
     extended: false
@@ -63,6 +64,12 @@ router.post('/register', (req, res) => {
     var user = new User(akun)
     user.save()
     .then( () => {
+        let new_akun = {
+            email : email,
+            email_friend : email
+        }
+        var people = new SeacrhPeople(new_akun)
+        people.save()
         console.log('User Baru Telah Terdaftar',akun)
         res.send(akun);
     })
