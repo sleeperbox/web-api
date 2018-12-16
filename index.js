@@ -10,6 +10,7 @@ mongoose.Promise = global.Promise;
 const app = express();
 
 app.use("/api", require("./routes/user/user"));
+app.use("/api", require("./routes/user/friend"));
 app.use("/api", require("./routes/bypass"));
 
 app.use("/api/profile", require("./routes/profile/buttom-menu"));

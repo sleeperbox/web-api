@@ -5,7 +5,7 @@ const cors = require('cors')
 const bcrypt = require('bcrypt');
 const randtoken = require('rand-token')
 const User = require('../../model/User')
-const Friend = require('../../model/Friend')
+const SeacrhPeople = require('../../model/SearchPeople')
 
 router.use(bodyParser.urlencoded({
     extended: false
@@ -64,6 +64,12 @@ router.post('/register', (req, res) => {
     var user = new User(akun)
     user.save()
     .then( () => {
+        let new_akun = {
+            email : email,
+            email_friend : email
+        }
+        var people = new SeacrhPeople(new_akun)
+        people.save()
         console.log('User Baru Telah Terdaftar',akun)
         res.send(akun);
     })
@@ -80,126 +86,12 @@ router.get('/user', (req, res) => {
       })
 })
 
-//api get all friend
-router.post('/friend', (req, res) => {
-    let email = req.body.email
-    Friend.find({ email }, (err, obj_user) => {
-        var userMap = {}
-        obj_user.forEach(function(users) {
-        userMap[users._id] = users
-        })
-        if(obj_user){
-        res.send(obj_user)
-        }else{
-            res.send(err)
-        }
-      })
-})
-
-//api add friend
-router.post('/addfriend', (req, res) => {
-    let email = req.body.email
-    let email_add = req.body.email_add
-    let teman = {
-        email : email,
-        email_friend : email_add,
-        status : "pending"
-    }
-    var friend = new Friend(teman)
-    friend.save()
-    .then( teman  => {
-        console.log(email_add, 'Di Tambahkan teman oleh' ,email)
-        res.send(teman)
-    })
-})
-
-//bypass frind request to null
-router.get('/clearfriendstatus', (req, res) => {
-    Friend.updateMany(
-        { status: "" }
-     ).then(res.send('updated.'));
-})
-
-//api notif add
-/*
-router.post('/addfriend', (req, res) => {
-    let email_friend = req.body.email
-    let status = 'pending'
-    Friend.find({ email_friend } && { status }, (err, obj_user) => {
-        var userMap = {}
-        obj_user.forEach(function(users) {
-        userMap[users._id] = users
-        })
-        res.send(obj_user)
-      })
-})
-*/
-
-//api get status friend
-router.post('/addfriend/status', (req, res) => {
-    let email = req.body.email
-    Friend.findOne({ email }, (err, obj_user) => {
-        if(obj_user){
-            let email_friend = obj_user.email_friend
-            let status = obj_user.status
-            let friend = {
-                email_friend : email_friend,
-                status : status
-            }
-            console.log(email_friend, 'Status', status)                
-            res.send(friend)
-        }else{
-            res.send(err)
-        }
-    })
-})
-
-//api confirm friend
-router.post('/confirm/friend', (req, res) => {
-    let email = req.body.email
-    let email_friend = req.body.email_add
-    let status = 'confirm'
-    let teman = {
-        email : email,
-        email_friend : email_friend,
-        status : "confirm"
-    }
-    var friend = new Friend(teman)
-    friend.save()
-    Friend.findOneAndUpdate(email, email_friend, {status}, () => {
-        let teman = {
-            email : email_friend,
-            email_friend : email,
-            status : "confirm"
-        }
-        var friend = new Friend(teman)
-        friend.save()
-        .then( user => {
-            console.log(email, 'Telah Berteman Dengan', email_friend)
-            res.send(user)
-        })
-    })
-})
-
 router.delete('/clearmongo', function(req, res){
     User.remove(function(err){
       if(err) res.json(err);
         res.send('removed');
     });
  });
-
-//api search people
-router.post('/search/people', (req, res) =>{
-    let email = req.body.email
-    User.find({ email : { "$ne" : email}}, (err, obj_user) => {
-        console.log(email, 'Searching People') 
-        if(obj_user){
-            res.send(obj_user)
-        }else{
-            res.send(err)
-        }
-    })
-})
 
 router.post('/user/add', function(req, res){
     console.log(req.body)
