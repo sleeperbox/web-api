@@ -86,7 +86,7 @@ router.post('/addfriend/status', (req, res) => {
 //friend status pending
 router.post('/friend/status/pending', (req, res) => {
     let email = req.body.email
-    Friend.find({ email }, (err, obj_user) => {
+    Friend.find({ email : email, status : 'pending' }, (err, obj_user) => {
         var userMap = {}
         obj_user.forEach(function(users) {
         userMap[users._id] = users
@@ -103,7 +103,7 @@ router.post('/friend/status/pending', (req, res) => {
 router.post('/friend/status/confirm', (req, res) => {
     let email = req.body.email
     let status = 'confirm'
-    Friend.find({ email } && {status}, (err, obj_user) => {
+    Friend.find({ email : email, status : status }, (err, obj_user) => {
         var userMap = {}
         obj_user.forEach(function(users) {
         userMap[users._id] = users
@@ -128,6 +128,7 @@ router.put('/friend/confirm', (req, res) => {
     }
     var friend = new Friend(teman)
     friend.save()
+    .then( () =>{ 
     Friend.findOneAndUpdate({ email, email_friend }, { status : status }, () => {
         let new_teman = {
             email : email_friend,
@@ -136,7 +137,7 @@ router.put('/friend/confirm', (req, res) => {
         }
         var friend = new Friend(new_teman)
         friend.save()
-        .then( user => {
+    }).then( user => {
             console.log(email, 'Telah Berteman Dengan', email_friend)
             res.send(user)
         })
@@ -173,15 +174,14 @@ router.post('/friend', (req, res) =>{
     let email = req.body.email
     let status_pending = 'pending'
     let status_teman = 'confirm'
-    let a
     Friend.find({ email : email, status : status_pending || status_teman }, (err,teman) => {
-        if(teman){ 
+        if(teman != null){ 
+            let a = []
             for(let i=0; i < teman.length; i++ ){
-                a = teman[i].email_friend
-                console.log(a)
-            }
-                
-                User.find({ email : { "$nin" : [ email, a ] } }, (err, obj_user) => {
+                a.push(teman[i].email_friend)
+            }  
+                //let b = JSON.stringify(a).toString 
+                User.find({ email : { "$ne" : { email }} }, (err, obj_user) => {
                 if(obj_user){
                     console.log(a)
                     res.send(obj_user)
