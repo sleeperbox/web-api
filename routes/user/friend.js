@@ -181,7 +181,7 @@ router.post('/friend', (req, res) =>{
                 a.push(teman[i].email_friend)
             }  
                 //let b = JSON.stringify(a).toString 
-                User.find({ email : email }, (err, obj_user) => {
+                User.find({ email : { "$ne" : { email }} }, (err, obj_user) => {
                 if(obj_user){
                     console.log(a)
                     res.send(obj_user)

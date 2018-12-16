@@ -52,6 +52,8 @@ router.post('/register', (req, res) => {
     let password = bcrypt.hashSync(req.body.password, salt)
     let token = randtoken.generate(10);
     let auth = true
+    let date = new Date()
+    let join_date = date.toDateString()
     let akun = {
         email : email,
         username : username,
@@ -59,7 +61,12 @@ router.post('/register', (req, res) => {
         last_name : last_name,
         password : password,
         token : token,
-        auth : auth
+        auth : auth,
+        total_posts : 0,
+        total_thanks : 0,
+        total_friends : 0,
+        awards : 0,
+        join_date : join_date
     }
     var user = new User(akun)
     user.save()
@@ -72,6 +79,15 @@ router.post('/register', (req, res) => {
         people.save()
         console.log('User Baru Telah Terdaftar',akun)
         res.send(akun);
+    })
+})
+
+//api profile user
+router.post('/profile', (req, res) => {
+    let email = req.body.email
+    User.findOne({ email : email}, (err, profile) => {
+        console.log(email, 'Sedang melihat profile sendiri')
+        res.send(profile)
     })
 })
 
