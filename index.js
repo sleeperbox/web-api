@@ -12,6 +12,7 @@ const app = express();
 app.use("/api", require("./routes/user/user"));
 app.use("/api", require("./routes/friend/friend"));
 app.use("/api", require("./routes/bypass"));
+app.use("/api", require("./routes/tags/tags"));
 app.use("/api", require("./routes/posting/posting"));
 
 app.use("/api/profile", require("./routes/profile/buttom-menu"));
