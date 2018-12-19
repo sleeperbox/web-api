@@ -43,7 +43,10 @@ const UserSchema = new Schema({
     type: Number
   },
   join_date:{
-    type: Date
+    type: String
+  },
+  followed_topic:{
+    type: String
   }
 })
 

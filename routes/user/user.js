@@ -63,6 +63,10 @@ router.post('/register', (req, res) => {
         token : token,
         auth : auth,
         total_posts : 0,
+        total_thaks : 0,
+        total_friends : 0,
+        awards : 0,
+        join_date : join_date,
         total_thanks : 0,
         total_friends : 0,
         awards : 0,
@@ -71,6 +75,7 @@ router.post('/register', (req, res) => {
     var user = new User(akun)
     user.save()
     .then( () => {
+        console.log('User Baru Telah Terdaftar')
         let new_akun = {
             email : email,
             email_friend : email
