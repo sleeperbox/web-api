@@ -14,6 +14,12 @@ const UserSchema = new Schema({
   last_name: {
     type: String
   },
+  tgl_lahir:{
+    type: Date
+  },
+  jenis_kelamin:{
+    type: String
+  },
   password:{
     type: String,
     min: 6
@@ -23,6 +29,24 @@ const UserSchema = new Schema({
   },
   auth:{
     type: Boolean
+  },
+  total_thanks:{
+    type: Number
+  },
+  total_posts:{
+    type: Number
+  },
+  total_friends:{
+    type: Number
+  },
+  awards:{
+    type: Number
+  },
+  join_date:{
+    type: String
+  },
+  followed_topic:{
+    type: String
   }
 })
 
