@@ -5,6 +5,7 @@ const cors = require('cors')
 const bcrypt = require('bcrypt');
 const randtoken = require('rand-token')
 const User = require('../../model/User')
+const SeacrhPeople = require('../../model/SearchPeople')
 
 router.use(bodyParser.urlencoded({
     extended: false
@@ -66,12 +67,32 @@ router.post('/register', (req, res) => {
         total_friends : 0,
         awards : 0,
         join_date : join_date,
+        total_thanks : 0,
+        total_friends : 0,
+        awards : 0,
+        join_date : join_date
     }
     var user = new User(akun)
     user.save()
     .then( () => {
         console.log('User Baru Telah Terdaftar')
+        let new_akun = {
+            email : email,
+            email_friend : email
+        }
+        var people = new SeacrhPeople(new_akun)
+        people.save()
+        console.log('User Baru Telah Terdaftar',akun)
         res.send(akun);
+    })
+})
+
+//api profile user
+router.post('/profile', (req, res) => {
+    let email = req.body.email
+    User.findOne({ email : email}, (err, profile) => {
+        console.log(email, 'Sedang melihat profile sendiri')
+        res.send(profile)
     })
 })
 
