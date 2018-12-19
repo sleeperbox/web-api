@@ -60,30 +60,6 @@ router.post('/posting', (req, res) => {
             })
         })
     }) 
-  
-// api user posting
-router.post('/posting', (req, res) => {
-    let email = req.body.email
-    let username = req.body.username
-    let content = req.body.content
-    let like = 0
-    let status = 'publish'
-    let tanggal = new Date()
-    let date = tanggal.toString
-    let posting = {
-        email : email,
-        username : username,
-        content : content,
-        date : date,
-        like : like,
-        status : status
-    }
-    posting = new Posting(posting)
-    posting.save()
-    .then( (posting) => {
-        console.log(email, 'Membuat Postingan baru')
-        res.send(posting)
-    })
 })
 
 module.exports = router
