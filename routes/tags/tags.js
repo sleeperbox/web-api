@@ -22,47 +22,47 @@ router.get("/tags", (req, res) => {
     {
       text: "Pilih Kategori",
       value: "null",
-      Image: "http://192.168.100.200/assets/icons/tags/pilihkategori.png"
+      image: "http://192.168.100.200/assets/icons/tags/pilihkategori.png"
     },
     {
       text: "Komputer & Gadget",
       value: "computer-gadget",
-      Image: "http://192.168.100.200/assets/icons/tags/komputergadget.png"
+      image: "http://192.168.100.200/assets/icons/tags/komputergadget.png"
     },
     {
       text: "Keluarga & Asmara",
       value: "family-love",
-      Image: "http://192.168.100.200/assets/icons/tags/keluargaasmara.png"
+      image: "http://192.168.100.200/assets/icons/tags/keluargaasmara.png"
     },
     {
       text: "Fakta & Rumor",
       value: "fact-rumour",
-      Image: "http://192.168.100.200/assets/icons/tags/faktarumor.png"
+      image: "http://192.168.100.200/assets/icons/tags/faktarumor.png"
     },
     {
       text: "Bisnis & Pekerjaan",
       value: "business-work",
-      Image: "http://192.168.100.200/assets/icons/tags/bisnispekerjaan.png"
+      image: "http://192.168.100.200/assets/icons/tags/bisnispekerjaan.png"
     },
     {
       text: "Fashion & Gaya Hidup",
       value: "fashion-lifestyle",
-      Image: "http://192.168.100.200/assets/icons/tags/fashion.png"
+      image: "http://192.168.100.200/assets/icons/tags/fashion.png"
     },
     {
       text: "Quotes",
       value: "quotes",
-      Image: "http://192.168.100.200/assets/icons/tags/quotes.png"
+      image: "http://192.168.100.200/assets/icons/tags/quotes.png"
     },
     {
       text: "Riddles",
       value: "riddles",
-      Image: "http://192.168.100.200/assets/icons/tags/riddle.png"
+      image: "http://192.168.100.200/assets/icons/tags/riddle.png"
     },
     {
       text: "Lainya",
       value: "other",
-      Image: "http://192.168.100.200/assets/icons/tags/lainnya.png"
+      image: "http://192.168.100.200/assets/icons/tags/lainnya.png"
     }
   ];
   res.send(tags);
