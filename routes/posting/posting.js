@@ -32,6 +32,8 @@ router.post('/posting', (req, res) => {
     let tags = req.body.tags
     let tanggal = new Date()
     let date = tanggal.toDateString()
+    let jam = tanggal.getHours()
+    let menit = tanggal.getMinutes()
     User.findOne( { email : email}, (err,user) => {
         Posting.count({}, (err,postingan) => {
             let id = postingan
@@ -46,6 +48,8 @@ router.post('/posting', (req, res) => {
                 username : username,
                 content : content,
                 date : date,
+                jam : jam,
+                menit : menit,
                 thanks : like,
                 tags : tags,
                 status : 'publish'

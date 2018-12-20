@@ -17,6 +17,12 @@ const PostingSchema = new Schema({
   date : {
     type: String
   },
+  jam : {
+    type: String
+  },
+  menit : {
+    type: String
+  },
   thanks : {
     type: Number
   },
