@@ -1,60 +1,71 @@
-const express = require('express')
-const router = express.Router()
-const bodyParser = require('body-parser')
-const cors = require('cors')
+const express = require("express");
+const router = express.Router();
+const bodyParser = require("body-parser");
+const cors = require("cors");
 
-router.use(bodyParser.urlencoded({
+router.use(
+  bodyParser.urlencoded({
     extended: false
-  }))
-router.use(bodyParser.json())
-router.use(cors())
+  })
+);
+router.use(bodyParser.json());
+router.use(cors());
 
 // main api getter
-router.get('/', (req, res) =>{
-    res.send('Success Opening Main API...')
-})
+router.get("/", (req, res) => {
+  res.send("Success Opening Main API...");
+});
 
 //api tags
-router.get('/tags', (req, res) =>{
-    var tags = [
-        {
-            text : 'Pilih Kategori',
-            value  : 'null'
-        },
-        {
-            text : 'Komputer & Gadget',
-            value  : 'computer-gadget'
-        },
-        {
-            text : 'Keluarga & Asmara',
-            value  : 'family-love'
-        },
-        {
-            text : 'Fakta & Rumor',
-            value  : 'fact-rumour'
-        },
-        {
-            text : 'Bisnis & Pekerjaan',
-            value  : 'business-work'
-        },
-        {
-            text : 'Fashion & Gaya Hidup',
-            value  : 'fashion-lifestyle'
-        },
-        {
-            text : 'Quotes',
-            value  : 'quotes'
-        },
-        {
-            text : 'Riddles',
-            value  : 'riddles'
-        },
-        {
-            text : 'Lainya',
-            value  : 'other'
-        }
-    ]
-    res.send(tags)
-})
+router.get("/tags", (req, res) => {
+  var tags = [
+    {
+      text: "Pilih Kategori",
+      value: "null",
+      image: "http://192.168.100.200/assets/icons/tags/pilihkategori.png"
+    },
+    {
+      text: "Komputer & Gadget",
+      value: "computer-gadget",
+      image: "http://192.168.100.200/assets/icons/tags/komputergadget.png"
+    },
+    {
+      text: "Keluarga & Asmara",
+      value: "family-love",
+      image: "http://192.168.100.200/assets/icons/tags/keluargaasmara.png"
+    },
+    {
+      text: "Fakta & Rumor",
+      value: "fact-rumour",
+      image: "http://192.168.100.200/assets/icons/tags/faktarumor.png"
+    },
+    {
+      text: "Bisnis & Pekerjaan",
+      value: "business-work",
+      image: "http://192.168.100.200/assets/icons/tags/bisnispekerjaan.png"
+    },
+    {
+      text: "Fashion & Gaya Hidup",
+      value: "fashion-lifestyle",
+      image: "http://192.168.100.200/assets/icons/tags/fashion.png"
+    },
+    {
+      text: "Quotes",
+      value: "quotes",
+      image: "http://192.168.100.200/assets/icons/tags/quotes.png"
+    },
+    {
+      text: "Riddles",
+      value: "riddles",
+      image: "http://192.168.100.200/assets/icons/tags/riddle.png"
+    },
+    {
+      text: "Lainya",
+      value: "other",
+      image: "http://192.168.100.200/assets/icons/tags/lainnya.png"
+    }
+  ];
+  res.send(tags);
+});
 
-module.exports = router
+module.exports = router;
