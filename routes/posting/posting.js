@@ -62,4 +62,13 @@ router.post('/posting', (req, res) => {
     }) 
 })
 
+//api view posting di profile
+router.post('/posting/profile', (req, res) =>{
+    let email = req.body.email
+    Posting.find({ email : email}, (err, posting) => {
+        res.send(posting)
+        console.log(email, 'melihat posting di profile')
+    })
+})
+
 module.exports = router
