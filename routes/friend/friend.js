@@ -11,20 +11,31 @@ router.use(bodyParser.urlencoded({
 router.use(bodyParser.json())
 router.use(cors())
 
+//bypass friend
+router.get('/friendlist', (req, res) =>{
+    Friend.find((err,teman) => {
+        res.send(teman)
+    })
+})
+
+//api search people
+router.post('/friend', (req, res) =>{
+    let emails = req.body.email
+    User.find({email: emails}, (err, user) => {
+        const email = user[0]["email"]
+        Friend.find({email: {$ne: email}, status: '' }, (err, teman) => {
+            res.send(teman)
+        })
+    })
+})
+
 //api get all friend
 router.post('/myfriend', (req, res) => {
     let email = req.body.email
-    Friend.find({ email }, (err, obj_user) => {
-        var userMap = {}
-        obj_user.forEach(function(users) {
-        userMap[users._id] = users
-        })
-        if(obj_user){
-        res.send(obj_user)
-        }else{
-            res.send(err)
-        }
-      })
+    let status_teman = 'confirm'
+    Friend.find({ email : email, status : status_teman }, (err,teman) => {
+        res.send(teman)
+    })
 })
 
 //api add friend
@@ -166,41 +177,6 @@ router.delete('/unfriend', (req, res) => {
         Friend.findOneAndRemove({ email : email_friend, email_friend : email, status : status}, () =>{
             res.send('Membatalkan Pertemanan')
             })
-    })
-})
-
-//api search people
-router.post('/friend', (req, res) =>{
-    let email = req.body.email
-    let status_pending = 'pending'
-    let status_teman = 'confirm'
-    Friend.find({ email : email, status : status_pending || status_teman }, (err,teman) => {
-        if(teman != null){ 
-            let a = []
-            for(let i=0; i < teman.length; i++ ){
-                a.push(teman[i].email_friend)
-            }  
-                //let b = JSON.stringify(a).toString 
-                User.find({ email : { "$ne" : { email }} }, (err, obj_user) => {
-                if(obj_user){
-                    console.log(a)
-                    res.send(obj_user)
-                }else{
-                    console.log(email, 'Mencari Teman Error')
-                    res.send(err)
-                }
-            })
-        }else{
-            User.find({ email : { "$ne" : email} }, (err, obj_user) => { 
-                if(obj_user){
-                    console.log(email, 'Mencari Teman baru')
-                    res.send(obj_user)
-                }else{
-                    console.log(email, 'Mencari Teman Error')
-                    res.send(err)
-                }
-            })
-        }
     })
 })
 
