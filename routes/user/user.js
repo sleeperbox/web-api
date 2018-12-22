@@ -85,7 +85,7 @@ router.post("/register", (req, res) => {
     res.send(akun);
   });
 });
-router.put("/register/tags", (req, res) => {
+router.put("/user/tags", (req, res) => {
   let email = req.body.email;
   let tags = [req.body.tags];
   User.findOneAndUpdate({ email: email }, { $set: { tags: [tags] } }, function() {
