@@ -69,7 +69,8 @@ router.post("/register", (req, res) => {
     total_friends: 0,
     awards: 0,
     join_date: join_date,
-    total_thanks: 0
+    total_thanks: 0,
+    tags: ["Other"]
   };
   var user = new User(akun);
   user.save().then(() => {
@@ -88,7 +89,7 @@ router.put("/register/tags", (req, res) => {
   let email = req.body.email;
   let tags = [req.body.tags];
   User.findOneAndUpdate({ email: email }, { $set: { tags: [tags] } }, function() {
-    res.send(req.body.tags);
+    res.send("Tags telah ditambah");
   });
 });
 //api profile user
