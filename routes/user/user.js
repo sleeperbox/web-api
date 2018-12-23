@@ -85,6 +85,8 @@ router.post("/register", (req, res) => {
     res.send(akun);
   });
 });
+
+//api Upadate User
 router.put("/user/tags", (req, res) => {
   let email = req.body.email;
   let first_name = req.body.first_name
@@ -117,6 +119,38 @@ router.get("/user", (req, res) => {
   });
 });
 
+//api Hapus Akun User
+router.delete("/user/delete", function(req, res) {
+  let email = req.body.email
+  User.deleteOne({email : email}, () => {
+    console.log('Akun ', email,' ', ' Telah DiHapus')
+    res.send("User Berhasil Dihapus");
+  });
+});
+
+//api Ubah Password User
+router.put("/user/ubahpassword", function(req, res) {
+  let email = req.body.email
+  let password_lama = req.body.password_lama
+  const salt = bcrypt.genSaltSync(10);
+  let password_baru = bcrypt.hashSync(req.body.password_baru, salt);
+  User.findOne({ email : email}, (err,user) => {
+    var cekpassword = bcrypt.compareSync(password_lama, user.password);
+    if (cekpassword === true) {
+      User.findOneAndUpdate({email : email},{$set : {password : password_baru} }, () => {
+        console.log(email, ' Telah Mengubah Password')
+        res.send("Password Berhasil Di Ubah");
+      })  
+    }else{
+      console.log(email, "Password Lama Salah");
+      res.send("Password Lama Salah");
+    }
+  })
+});
+
+
+
+//api hapus semua user
 router.delete("/clearmongo", function(req, res) {
   User.remove(function(err) {
     if (err) res.json(err);
