@@ -24,6 +24,9 @@ const UserSchema = new Schema({
     type: String,
     min: 6
   },
+  phone_number: {
+    type: String,
+  },
   token: {
     type: String
   },
