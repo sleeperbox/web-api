@@ -87,8 +87,13 @@ router.post("/register", (req, res) => {
 });
 router.put("/user/tags", (req, res) => {
   let email = req.body.email;
+  let first_name = req.body.first_name
+  let last_name = req.body.last_name
+  let phone_number = req.body.phone_number
+  let gender = req.body.gender
   let tags = [req.body.tags];
-  User.findOneAndUpdate({ email: email }, { $set: { tags: [tags] } }, function() {
+  User.findOneAndUpdate({ email: email }, { $set: { tags: [tags] },first_name : first_name, last_name : last_name,
+    phone_number : phone_number, jenis_kelamin : gender }, function() {
     res.send("Tags telah ditambah");
   });
 });
