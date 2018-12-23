@@ -108,9 +108,17 @@ router.post("/profile", (req, res) => {
   });
 });
 
+//api get user
+router.post("/user", (req, res) => {
+  let email = req.body.email
+  User.findOne({email : email}, (err, obj_user) => {
+    res.send(obj_user);
+  });
+});
+
 //api get all user
 router.get("/user", (req, res) => {
-  User.find({}, (err, obj_user) => {
+  User.find( {}, (err, obj_user) => {
     var userMap = {};
     obj_user.forEach(function(users) {
       userMap[users._id] = users;
