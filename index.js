@@ -43,6 +43,10 @@ app.get("/", (req, res) => {
   ]);
 });
 
+app.delete('/del', function(req, res){
+  mongoose.connection.db.dropDatabase(function(err, result){console.log('deleted')})
+})
+
 app.listen(process.env.PORT || 8080, function() {
   console.log("starting server 8080...");
 });

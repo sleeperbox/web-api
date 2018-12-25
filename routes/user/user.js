@@ -5,6 +5,7 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 const randtoken = require("rand-token");
 const User = require("../../model/User");
+const Friend = require("../../model/Friend");
 const SeacrhPeople = require("../../model/SearchPeople");
 
 router.use(
@@ -47,6 +48,7 @@ router.post("/login", (req, res) => {
 //api register
 router.post("/register", (req, res) => {
   let email = req.body.email;
+  let emails = req.body.email;
   let username = req.body.username;
   let first_name = req.body.first_name;
   let last_name = req.body.last_name;
@@ -72,6 +74,7 @@ router.post("/register", (req, res) => {
     total_thanks: 0,
     tags: ["Other"]
   };
+
   var user = new User(akun);
   user.save().then(() => {
     console.log("User Baru Telah Terdaftar");

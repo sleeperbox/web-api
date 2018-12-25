@@ -17,9 +17,6 @@ router.delete("/friend", (req, res) => {
   Friend.remove({}, (err, result) => {
     console.log("removed");
   });
-  User.remove({}, (err, result) => {
-    console.log("removed");
-  });
   res.send("hapus");
 });
 
@@ -31,22 +28,26 @@ router.post("/friend", (req, res) => {
   });
 });
 
-router.post("/friend/status", (req, res) => {
-  let emails = req.body.email;
-  User.find({ email: { $ne: emails } }, (err, user) => {
-    user.forEach(function(users) {
-      var user_email = users.email;
-      Friend.find({ email: emails, email_friend: user_email }, (err, friend) => {
-        var pending = friend.length;
-        pending--;
-        if (pending >= 0) {
-          console.log("friends: ", friend);
-          res.send(friend);
-        }
-      });
-    });
+router.post("/people", (req, res) => {
+  let email_friend = req.body.email_friend;
+  User.findOne({ email: email_friend }, (err, user) => {
+    res.send(user);
   });
 });
+
+router.post("/people/profile", (req, res) => {
+  let email = req.body;
+  User.find({ email: email }, (err, user) => {
+    res.send(user)
+  })
+})
+
+router.post("/people/profile/get", (req, res) => {
+  let request1 = req.body.username;
+  User.find({ username: request1 }, (err, user) => {
+    res.send(user)
+  })
+})
 
 //api get all friend
 router.post("/myfriend", (req, res) => {
@@ -94,6 +95,7 @@ router.post("/friend/notif", (req, res) => {
 //api get status friend
 router.post("/addfriend/status", (req, res) => {
   let email = req.body.email;
+  let email_friend = req.body.email_friend;
   Friend.findOne({ email }, (err, obj_user) => {
     if (obj_user) {
       let email_friend = obj_user.email_friend;
