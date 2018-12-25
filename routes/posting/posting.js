@@ -75,4 +75,13 @@ router.post('/posting/profile', (req, res) =>{
     })
 })
 
+//api posting menurut tag
+router.post('/posting/tag', (req, res) =>{
+    let tag = req.body.tag
+    Posting.find({ tags : tag}, (err, posting) => {
+        res.send(posting)
+        console.log(tag, 'melihat posting di profile')
+    })
+})
+
 module.exports = router
