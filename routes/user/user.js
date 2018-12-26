@@ -112,6 +112,14 @@ router.get("/user", (req, res) => {
   });
 });
 
+//api get user
+router.post("/user", (req, res) => {
+  let email = req.body.email
+  User.findOne({email : email}, (err, obj_user) => {
+    res.send(obj_user);
+  });
+});
+
 router.delete("/clearmongo", function(req, res) {
   User.remove(function(err) {
     if (err) res.json(err);
