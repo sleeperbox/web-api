@@ -75,4 +75,11 @@ router.post('/posting/profile', (req, res) =>{
     })
 })
 
+router.post('/posting/people', (req, res) =>{
+    let username = req.body.username
+    Posting.find({ username : username}, (err, posting) => {
+        res.send(posting)
+    })
+})
+
 module.exports = router
