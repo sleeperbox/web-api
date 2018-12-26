@@ -70,7 +70,7 @@ router.post("/register", (req, res) => {
     awards: 0,
     join_date: join_date,
     total_thanks: 0,
-    tags: ["Other"]
+    tags: ["other"]
   };
   var user = new User(akun);
   user.save().then(() => {
