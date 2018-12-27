@@ -46,9 +46,48 @@ router.post("/follow", (req, res) => {
   };
   var friend = new Friend(teman);
   friend.save().then(teman => {
+    User.findOne({email}, (err, hasil) => {
+      let total_friends = hasil.total_friends
+      let countfriend = total_friends + 1
+      User.findOneAndUpdate({email: email_friend}, { $set: { total_friends: countfriend }}, { new: true }, (err, result) => {
+        console.log('suskes friend' + result)
+      })
+    })
     res.send(teman);
   });
 });
+
+router.post("/following/count", (req, res) => {
+  let email = req.body.email
+  Friend.findOne({email}, (err, result) => {
+    Friend.countDocuments({status: 'followed'}, (a, counting)=>{
+      res.send('' + counting)
+    })
+  })
+})
+
+router.post("/follower/count", (req, res) => {
+  let email_friend = req.body.email
+  Friend.findOne({email_friend}, (err, result) => {
+    Friend.countDocuments({status: 'followed'}, (a, counting)=>{
+      res.send('' + counting)
+    })
+  })
+})
+
+router.post("/following/list", (req, res) => {
+  let email = req.body.email
+  Friend.find({email, status: 'followed'}, (err, result) => {
+   res.send(result)
+  })
+})
+
+router.post("/follower/list", (req, res) => {
+  let email_friend = req.body.email
+  Friend.find({email_friend, status: 'followed'}, (err, result) => {
+    res.send(result)
+  })
+})
 
 //api notif add
 router.post("/follow/notif", (req, res) => {
@@ -88,6 +127,13 @@ router.put("/unfollow", (req, res) => {
          Friend.findOneAndRemove({email, email_friend}, (err, removed) =>{
            console.log('removed')
          })
+         User.findOne({email}, (err, hasil) => {
+          let total_friends = hasil.total_friends
+          let countfriend = total_friends - 1
+          User.findOneAndUpdate({email: email_friend}, { $set: { total_friends: countfriend }}, { new: true }, (err, result) => {
+            console.log('suskes friend' + result)
+          })
+        })
          res.send(status);
         });
       }else{
@@ -100,6 +146,13 @@ router.put("/unfollow", (req, res) => {
 //bypass
 router.delete("/clearf", (req, res) => {
   Friend.remove({}, (err, sukses) => {
+    res.send(sukses)
+  })
+});
+
+router.put("/reset", (req, res) => {
+  let email = req.body.email
+  User.findOneAndUpdate({email},{ $set: { total_friends: 0 }}, { new: true }, (err, sukses) => {
     res.send(sukses)
   })
 });
