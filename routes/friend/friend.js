@@ -49,9 +49,6 @@ router.post("/follow", (req, res) => {
     User.findOne({email}, (err, hasil) => {
       let total_friends = hasil.total_friends
       let countfriend = total_friends + 1
-      User.findOneAndUpdate({email}, { $set: { total_friends: countfriend }}, { new: true }, (err, result) => {
-        console.log('suskes' + result)
-      })
       User.findOneAndUpdate({email: email_friend}, { $set: { total_friends: countfriend }}, { new: true }, (err, result) => {
         console.log('suskes friend' + result)
       })
@@ -133,9 +130,6 @@ router.put("/unfollow", (req, res) => {
          User.findOne({email}, (err, hasil) => {
           let total_friends = hasil.total_friends
           let countfriend = total_friends - 1
-          User.findOneAndUpdate({email}, { $set: { total_friends: countfriend }}, { new: true }, (err, result) => {
-            console.log('suskes' + result)
-          })
           User.findOneAndUpdate({email: email_friend}, { $set: { total_friends: countfriend }}, { new: true }, (err, result) => {
             console.log('suskes friend' + result)
           })
