@@ -35,6 +35,13 @@ router.post("/people/profile/get", (req, res) => {
   })
 })
 
+router.post("/follow/user/data", (req, res) => {
+  let username = req.body.username
+  User.find({username}, (err, result) => {
+   res.send(result)
+  })
+})
+
 //api add friend
 router.post("/follow", (req, res) => {
   let email = req.body.email;
@@ -46,7 +53,7 @@ router.post("/follow", (req, res) => {
   };
   var friend = new Friend(teman);
   friend.save().then(teman => {
-    User.findOne({email}, (err, hasil) => {
+    User.findOne({email: email_friend}, (err, hasil) => {
       let total_friends = hasil.total_friends
       let countfriend = total_friends + 1
       User.findOneAndUpdate({email: email_friend}, { $set: { total_friends: countfriend }}, { new: true }, (err, result) => {
@@ -127,7 +134,7 @@ router.put("/unfollow", (req, res) => {
          Friend.findOneAndRemove({email, email_friend}, (err, removed) =>{
            console.log('removed')
          })
-         User.findOne({email}, (err, hasil) => {
+         User.findOne({email: email_friend}, (err, hasil) => {
           let total_friends = hasil.total_friends
           let countfriend = total_friends - 1
           User.findOneAndUpdate({email: email_friend}, { $set: { total_friends: countfriend }}, { new: true }, (err, result) => {
