@@ -46,6 +46,13 @@ router.post("/follow", (req, res) => {
   };
   var friend = new Friend(teman);
   friend.save().then(teman => {
+    User.findOne({email}, (err, hasil) => {
+      let total_friends = hasil.total_friends
+      let countfriend = total_friends + 1
+      User.findOneAndUpdate({email}, { $set: { total_friends: countfriend }}, { new: true }, (err, result) => {
+        console.log('suskes' + result)
+      })
+    })
     res.send(teman);
   });
 });
@@ -120,6 +127,13 @@ router.put("/unfollow", (req, res) => {
          Friend.findOneAndRemove({email, email_friend}, (err, removed) =>{
            console.log('removed')
          })
+         User.findOne({email}, (err, hasil) => {
+          let total_friends = hasil.total_friends
+          let countfriend = total_friends - 1
+          User.findOneAndUpdate({email}, { $set: { total_friends: countfriend }}, { new: true }, (err, result) => {
+            console.log('suskes' + result)
+          })
+        })
          res.send(status);
         });
       }else{
@@ -132,6 +146,13 @@ router.put("/unfollow", (req, res) => {
 //bypass
 router.delete("/clearf", (req, res) => {
   Friend.remove({}, (err, sukses) => {
+    res.send(sukses)
+  })
+});
+
+router.put("/reset", (req, res) => {
+  let email = req.body.email
+  User.findOneAndUpdate({email},{ $set: { total_friends: 0 }}, { new: true }, (err, sukses) => {
     res.send(sukses)
   })
 });
