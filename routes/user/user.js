@@ -31,14 +31,11 @@ router.post("/login", (req, res) => {
       let dbpassword = user.password;
       var cekpassword = bcrypt.compareSync(password, dbpassword);
       if (cekpassword === true && token != "") {
-        console.log(emailuser, "Telah Login");
         res.send(user);
       } else {
-        console.log(emailuser, "Salah Password");
         res.send("Password Salah");
       }
     } else {
-      console.log(email, "Tidak Ada");
       res.send("Email Tidak Di Temukan");
     }
   });
@@ -74,14 +71,12 @@ router.post("/register", (req, res) => {
   };
   var user = new User(akun);
   user.save().then(() => {
-    console.log("User Baru Telah Terdaftar");
     let new_akun = {
       email: email,
       email_friend: email
     };
     var people = new SeacrhPeople(new_akun);
     people.save();
-    console.log("User Baru Telah Terdaftar", akun);
     res.send(akun);
   });
 });
@@ -96,7 +91,6 @@ router.put("/user/tags", (req, res) => {
 router.post("/profile", (req, res) => {
   let email = req.body.email;
   User.findOne({ email: email }, (err, profile) => {
-    console.log(email, "Sedang melihat profile sendiri");
     res.send(profile);
   });
 });
@@ -128,7 +122,6 @@ router.delete("/clearmongo", function(req, res) {
 });
 
 router.post("/user/add", function(req, res) {
-  console.log(req.body);
   var user = new User(req.body);
   user.save().then(() => {
     res.status(200).json({ user: "added successfully" });
