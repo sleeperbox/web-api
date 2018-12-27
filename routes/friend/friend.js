@@ -50,6 +50,38 @@ router.post("/follow", (req, res) => {
   });
 });
 
+router.post("/following/count", (req, res) => {
+  let email = req.body.email
+  Friend.findOne({email}, (err, result) => {
+    Friend.countDocuments({status: 'followed'}, (a, counting)=>{
+      res.send('' + counting)
+    })
+  })
+})
+
+router.post("/follower/count", (req, res) => {
+  let email_friend = req.body.email
+  Friend.findOne({email_friend}, (err, result) => {
+    Friend.countDocuments({status: 'followed'}, (a, counting)=>{
+      res.send('' + counting)
+    })
+  })
+})
+
+router.post("/following/list", (req, res) => {
+  let email = req.body.email
+  Friend.find({email, status: 'followed'}, (err, result) => {
+   res.send(result)
+  })
+})
+
+router.post("/follower/list", (req, res) => {
+  let email_friend = req.body.email
+  Friend.find({email_friend, status: 'followed'}, (err, result) => {
+    res.send(result)
+  })
+})
+
 //api notif add
 router.post("/follow/notif", (req, res) => {
   let email_friend = req.body.email;
