@@ -31,11 +31,14 @@ router.post("/login", (req, res) => {
       let dbpassword = user.password;
       var cekpassword = bcrypt.compareSync(password, dbpassword);
       if (cekpassword === true && token != "") {
+        console.log(emailuser, "Telah Login");
         res.send(user);
       } else {
+        console.log(emailuser, "Salah Password");
         res.send("Password Salah");
       }
     } else {
+      console.log(email, "Tidak Ada");
       res.send("Email Tidak Di Temukan");
     }
   });
@@ -71,19 +74,28 @@ router.post("/register", (req, res) => {
   };
   var user = new User(akun);
   user.save().then(() => {
+    console.log("User Baru Telah Terdaftar");
     let new_akun = {
       email: email,
       email_friend: email
     };
     var people = new SeacrhPeople(new_akun);
     people.save();
+    console.log("User Baru Telah Terdaftar", akun);
     res.send(akun);
   });
 });
+
+//api Upadate User
 router.put("/user/tags", (req, res) => {
   let email = req.body.email;
+  let first_name = req.body.first_name
+  let last_name = req.body.last_name
+  let phone_number = req.body.phone_number
+  let gender = req.body.gender
   let tags = [req.body.tags];
-  User.findOneAndUpdate({ email: email }, { $set: { tags: [tags] } }, function() {
+  User.findOneAndUpdate({ email: email }, { $set: { tags: [tags] },first_name : first_name, last_name : last_name,
+    phone_number : phone_number, jenis_kelamin : gender }, function() {
     res.send("Tags telah ditambah");
   });
 });
@@ -91,18 +103,8 @@ router.put("/user/tags", (req, res) => {
 router.post("/profile", (req, res) => {
   let email = req.body.email;
   User.findOne({ email: email }, (err, profile) => {
+    console.log(email, "Sedang melihat profile sendiri");
     res.send(profile);
-  });
-});
-
-//api get all user
-router.get("/user", (req, res) => {
-  User.find({}, (err, obj_user) => {
-    var userMap = {};
-    obj_user.forEach(function(users) {
-      userMap[users._id] = users;
-    });
-    res.send(obj_user);
   });
 });
 
@@ -114,6 +116,49 @@ router.post("/user", (req, res) => {
   });
 });
 
+//api get all user
+router.get("/user", (req, res) => {
+  User.find( {}, (err, obj_user) => {
+    var userMap = {};
+    obj_user.forEach(function(users) {
+      userMap[users._id] = users;
+    });
+    res.send(obj_user);
+  });
+});
+
+//api Hapus Akun User
+router.delete("/user/delete", function(req, res) {
+  let email = req.body.email
+  User.deleteOne({email : email}, () => {
+    console.log('Akun ', email,' ', ' Telah DiHapus')
+    res.send("User Berhasil Dihapus");
+  });
+});
+
+//api Ubah Password User
+router.put("/user/ubahpassword", function(req, res) {
+  let email = req.body.email
+  let password_lama = req.body.password_lama
+  const salt = bcrypt.genSaltSync(10);
+  let password_baru = bcrypt.hashSync(req.body.password_baru, salt);
+  User.findOne({ email : email}, (err,user) => {
+    var cekpassword = bcrypt.compareSync(password_lama, user.password);
+    if (cekpassword === true) {
+      User.findOneAndUpdate({email : email},{$set : {password : password_baru} }, () => {
+        console.log(email, ' Telah Mengubah Password')
+        res.send("Password Berhasil Di Ubah");
+      })  
+    }else{
+      console.log(email, "Password Lama Salah");
+      res.send("Password Lama Salah");
+    }
+  })
+});
+
+
+
+//api hapus semua user
 router.delete("/clearmongo", function(req, res) {
   User.remove(function(err) {
     if (err) res.json(err);
@@ -122,6 +167,7 @@ router.delete("/clearmongo", function(req, res) {
 });
 
 router.post("/user/add", function(req, res) {
+  console.log(req.body);
   var user = new User(req.body);
   user.save().then(() => {
     res.status(200).json({ user: "added successfully" });
