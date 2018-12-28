@@ -25,7 +25,7 @@ router.get("/", (req, res) => {
 router.post('/upload/avatar', upload.single('avatar'), (req, res) => {
     let email = req.body.email
     let avatar = req.file.originalname
-    var file = __dirname + "/../../public/avatar/" + req.file.originalname;
+    var file = __dirname + "/../../public/avatar/" + avatar;
     fs.readFile( req.file.path, function (err, data) {
         fs.writeFile(file, data, function (err) {
          if( err ){
@@ -33,12 +33,13 @@ router.post('/upload/avatar', upload.single('avatar'), (req, res) => {
          }else{
             Foto.count({email: email}, (err,user) => {
                 if(user == 1){
-                    Foto.findOne({email: email}, (err,foto) => {
-                        let avatar_lama = foto.avatar
+                    Foto.findOne({ email: email}, (err,user) => {
+                        let avatar_lama = user.avatar
                         fs.unlink(__dirname + '/../../public/avatar/' + avatar_lama)
                     })
-                    .then( () => {
-                        Foto.findOneAndUpdate({ email: email }, { $set: { avatar: avatar } }, function() {
+                    .then( (user) => {
+                        let email_user = user.email
+                        Foto.findOneAndUpdate({ email: email_user }, { $set: { avatar: avatar } }, function() {
                             res.send('Mengganti foto avatar')
                         })
                     })
@@ -60,11 +61,18 @@ router.post('/upload/avatar', upload.single('avatar'), (req, res) => {
 });
 
 //api menampilkan avatar user di profile
-router.get("/avatar", (req, res) => {
+router.post("/user/avatar", (req, res) => {
     let email = req.body.email
-    Foto.findOne({email: email},(err,user) => {
-        let avatar = user.avatar
-        res.sendFile(path.join(__dirname + "/../../public/avatar/" + avatar));
+    Foto.count({email: email}, (err,user) => {
+        if(user == 1){
+            Foto.findOne({email: email},(err,user) => {
+                let avatar = user.avatar
+                res.send(avatar)
+            })
+        }else{
+            let avatar = 'koala.jpg'
+            res.send(avatar)
+        }
     })
 });
 
