@@ -98,14 +98,9 @@ router.post("/follower/list", (req, res) => {
 
 //api notif add
 router.post("/follow/notif", (req, res) => {
-  let email_friend = req.body.email;
-  let status = "followed";
-  Friend.find({ email_friend: email_friend, status: status }, (err, obj_user) => {
-    var userMap = {};
-    obj_user.forEach(function(users) {
-      userMap[users._id] = users;
-    });
-    res.send(obj_user);
+  let email = req.body.email;
+  Friend.find({ email_friend: email, status: "followed" }, (err, friend) => {
+    res.send(friend);
   });
 });
 
