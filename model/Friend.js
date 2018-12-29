@@ -8,6 +8,12 @@ const FriendSchema = new Schema({
   email_friend: {
     type: String
   },
+  username: {
+    type: String
+  },
+  name: {
+    type: String
+  },
   status: {
     type: String
   },

@@ -46,13 +46,16 @@ router.post("/follow/user/data", (req, res) => {
 router.post("/follow", (req, res) => {
   let email = req.body.email;
   let email_friend = req.body.email_friend;
-  let teman = {
-    email: email,
-    email_friend: email_friend,
-    status: "followed",
-    seen: 0
-  };
-  var friend = new Friend(teman);
+  User.findOne({ email: email_friend}, (err, user) => {
+    let teman = {
+      email: email,
+      email_friend: email_friend,
+      username: user.username,
+      name: user.first_name + user.last_name,
+      status: "followed",
+      seen: 0
+    };
+    var friend = new Friend(teman);
   friend.save().then(teman => {
     User.findOne({ email: email_friend }, (err, hasil) => {
       let total_friends = hasil.total_friends;
@@ -67,6 +70,7 @@ router.post("/follow", (req, res) => {
       );
     });
     res.send(teman);
+  });
   });
 });
 
@@ -114,6 +118,14 @@ router.post("/follow/notif/count", (req, res) => {
   let email = req.body.email;
   Friend.countDocuments({ email_friend: email, status: "followed", seen: 0 }, (a, counting) => {
     res.send("" + counting);
+  });
+});
+
+//
+router.post("/follow/notif", (req, res) => {
+  let email = req.body.email;
+  User.findOne({ email: email }, (err, user) => {
+    res.send(user);
   });
 });
 
