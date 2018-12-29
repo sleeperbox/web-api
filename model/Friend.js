@@ -1,5 +1,5 @@
-const mongoose = require('mongoose')
-const Schema = mongoose.Schema
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
 const FriendSchema = new Schema({
   email: {
@@ -8,10 +8,13 @@ const FriendSchema = new Schema({
   email_friend: {
     type: String
   },
-  status:{
+  status: {
     type: String
+  },
+  seen: {
+    type: Number
   }
-})
+});
 
-const Friend = mongoose.model('Friend', FriendSchema)
-module.exports = Friend
+const Friend = mongoose.model("Friend", FriendSchema);
+module.exports = Friend;
