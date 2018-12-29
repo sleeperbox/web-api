@@ -34,12 +34,12 @@ router.post("/login", (req, res) => {
         console.log(emailuser, "Telah Login");
         res.send(user);
       } else {
-        console.log(emailuser, "Salah Password");
-        res.send("Password Salah");
+        var statusemail = 1;
+        res.send("" + statusemail);
       }
     } else {
-      console.log(email, "Tidak Ada");
-      res.send("Email Tidak Di Temukan");
+      var statuslogin = 1;
+      res.send("" + statuslogin);
     }
   });
 });
@@ -72,25 +72,39 @@ router.post("/register", (req, res) => {
     total_thanks: 0,
     tags: ["other"]
   };
-  var user = new User(akun);
-  user.save().then(() => {
-    console.log("User Baru Telah Terdaftar");
-    let new_akun = {
-      email: email,
-      email_friend: email
-    };
-    var people = new SeacrhPeople(new_akun);
-    people.save();
-    console.log("User Baru Telah Terdaftar", akun);
-    res.send(akun);
+  User.findOne({ email: email }, (er, user) => {
+    if (!user) {
+      var users = new User(akun);
+      users.save();
+      console.log("User Baru Telah di Daftarkan");
+      res.send(akun);
+    } else {
+      let mail = user.email;
+      let name = user.username;
+      if (mail == email || name == username) {
+        var statuskode = 1;
+        res.send("" + statuskode);
+      }
+    }
   });
+  let new_akun = {
+    email: email,
+    email_friend: email
+  };
+  var people = new SeacrhPeople(new_akun);
+  people.save();
+  console.log("User Baru Telah Terdaftar", akun);
 });
 router.put("/user/tags", (req, res) => {
   let email = req.body.email;
   let tags = [req.body.tags];
-  User.findOneAndUpdate({ email: email }, { $set: { tags: [tags] } }, function() {
-    res.send("Tags telah ditambah");
-  });
+  User.findOneAndUpdate(
+    { email: email },
+    { $set: { tags: [tags] } },
+    function() {
+      res.send("Tags telah ditambah");
+    }
+  );
 });
 //api profile user
 router.post("/profile", (req, res) => {
@@ -114,8 +128,8 @@ router.get("/user", (req, res) => {
 
 //api get user
 router.post("/user", (req, res) => {
-  let email = req.body.email
-  User.findOne({email : email}, (err, obj_user) => {
+  let email = req.body.email;
+  User.findOne({ email: email }, (err, obj_user) => {
     res.send(obj_user);
   });
 });
