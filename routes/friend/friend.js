@@ -51,7 +51,7 @@ router.post("/follow", (req, res) => {
       email: email,
       email_friend: email_friend,
       username: user.username,
-      name: user.first_name + user.last_name,
+      name: user.first_name + " " + user.last_name,
       status: "followed",
       seen: 0
     };
