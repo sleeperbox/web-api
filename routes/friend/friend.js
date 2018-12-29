@@ -46,7 +46,7 @@ router.post("/follow/user/data", (req, res) => {
 router.post("/follow", (req, res) => {
   let email = req.body.email;
   let email_friend = req.body.email_friend;
-  User.findOne({ email: email_friend}, (err, user) => {
+  User.findOne({ email: email}, (err, user) => {
     let teman = {
       email: email,
       email_friend: email_friend,
