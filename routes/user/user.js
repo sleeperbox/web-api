@@ -104,20 +104,10 @@ router.put("/user/tags", (req, res) => {
   let phone_number = req.body.phone_number
   let gender = req.body.gender
   let tags = [req.body.tags];
-<<<<<<< HEAD
-  User.findOneAndUpdate(
-    { email: email },
-    { $set: { tags: [tags] } },
-    function() {
-      res.send("Tags telah ditambah");
-    }
-  );
-=======
   User.findOneAndUpdate({ email: email }, { $set: { tags: [tags] },first_name : first_name, last_name : last_name,
     phone_number : phone_number, jenis_kelamin : gender }, function() {
     res.send("Tags telah ditambah");
   });
->>>>>>> aa5e764739aeb8a2e4a6fdc2200aa6ac32e46200
 });
 //api profile user
 router.post("/profile", (req, res) => {
