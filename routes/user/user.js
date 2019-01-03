@@ -34,12 +34,12 @@ router.post("/login", (req, res) => {
         console.log(emailuser, "Telah Login");
         res.send(user);
       } else {
-        console.log(emailuser, "Salah Password");
-        res.send("Password Salah");
+        var statuspassword = 1;
+        res.send("" + statuspassword);
       }
     } else {
-      console.log(email, "Tidak Ada");
-      res.send("Email Tidak Di Temukan");
+      var statuslogin = 1;
+      res.send("" + statuslogin);
     }
   });
 });
@@ -72,18 +72,28 @@ router.post("/register", (req, res) => {
     total_thanks: 0,
     tags: ["other"]
   };
-  var user = new User(akun);
-  user.save().then(() => {
-    console.log("User Baru Telah Terdaftar");
-    let new_akun = {
-      email: email,
-      email_friend: email
-    };
-    var people = new SeacrhPeople(new_akun);
-    people.save();
-    console.log("User Baru Telah Terdaftar", akun);
-    res.send(akun);
+  User.findOne({ email: email }, (er, user) => {
+    if (!user) {
+      var users = new User(akun);
+      users.save();
+      console.log("User Baru Telah di Daftarkan");
+      res.send(akun);
+    } else {
+      let mail = user.email;
+      let name = user.username;
+      if (mail == email || name == username) {
+        var statuskode = 1;
+        res.send("" + statuskode);
+      }
+    }
   });
+  let new_akun = {
+    email: email,
+    email_friend: email
+  };
+  var people = new SeacrhPeople(new_akun);
+  people.save();
+  console.log("User Baru Telah Terdaftar", akun);
 });
 
 //api Upadate User
@@ -94,10 +104,20 @@ router.put("/user/tags", (req, res) => {
   let phone_number = req.body.phone_number
   let gender = req.body.gender
   let tags = [req.body.tags];
+<<<<<<< HEAD
+  User.findOneAndUpdate(
+    { email: email },
+    { $set: { tags: [tags] } },
+    function() {
+      res.send("Tags telah ditambah");
+    }
+  );
+=======
   User.findOneAndUpdate({ email: email }, { $set: { tags: [tags] },first_name : first_name, last_name : last_name,
     phone_number : phone_number, jenis_kelamin : gender }, function() {
     res.send("Tags telah ditambah");
   });
+>>>>>>> aa5e764739aeb8a2e4a6fdc2200aa6ac32e46200
 });
 //api profile user
 router.post("/profile", (req, res) => {
@@ -127,12 +147,20 @@ router.get("/user", (req, res) => {
   });
 });
 
+<<<<<<< HEAD
+//api get user
+router.post("/user", (req, res) => {
+  let email = req.body.email;
+  User.findOne({ email: email }, (err, obj_user) => {
+    res.send(obj_user);
+=======
 //api Hapus Akun User
 router.delete("/user/delete", function(req, res) {
   let email = req.body.email
   User.deleteOne({email : email}, () => {
     console.log('Akun ', email,' ', ' Telah DiHapus')
     res.send("User Berhasil Dihapus");
+>>>>>>> aa5e764739aeb8a2e4a6fdc2200aa6ac32e46200
   });
 });
 
