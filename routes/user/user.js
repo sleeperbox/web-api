@@ -34,8 +34,8 @@ router.post("/login", (req, res) => {
         console.log(emailuser, "Telah Login");
         res.send(user);
       } else {
-        var statusemail = 1;
-        res.send("" + statusemail);
+        var statuspassword = 1;
+        res.send("" + statuspassword);
       }
     } else {
       var statuslogin = 1;
