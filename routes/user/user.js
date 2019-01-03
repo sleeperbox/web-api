@@ -99,15 +99,24 @@ router.post("/register", (req, res) => {
 //api Upadate User
 router.put("/user/tags", (req, res) => {
   let email = req.body.email;
-  let first_name = req.body.first_name
-  let last_name = req.body.last_name
-  let phone_number = req.body.phone_number
-  let gender = req.body.gender
+  let first_name = req.body.first_name;
+  let last_name = req.body.last_name;
+  let phone_number = req.body.phone_number;
+  let gender = req.body.gender;
   let tags = [req.body.tags];
-  User.findOneAndUpdate({ email: email }, { $set: { tags: [tags] },first_name : first_name, last_name : last_name,
-    phone_number : phone_number, jenis_kelamin : gender }, function() {
-    res.send("Tags telah ditambah");
-  });
+  User.findOneAndUpdate(
+    { email: email },
+    {
+      $set: { tags: [tags] },
+      first_name: first_name,
+      last_name: last_name,
+      phone_number: phone_number,
+      jenis_kelamin: gender
+    },
+    function() {
+      res.send("Tags telah ditambah");
+    }
+  );
 });
 //api profile user
 router.post("/profile", (req, res) => {
@@ -120,15 +129,15 @@ router.post("/profile", (req, res) => {
 
 //api get user
 router.post("/user", (req, res) => {
-  let email = req.body.email
-  User.findOne({email : email}, (err, obj_user) => {
+  let email = req.body.email;
+  User.findOne({ email: email }, (err, obj_user) => {
     res.send(obj_user);
   });
 });
 
 //api get all user
 router.get("/user", (req, res) => {
-  User.find( {}, (err, obj_user) => {
+  User.find({}, (err, obj_user) => {
     var userMap = {};
     obj_user.forEach(function(users) {
       userMap[users._id] = users;
@@ -137,44 +146,34 @@ router.get("/user", (req, res) => {
   });
 });
 
-<<<<<<< HEAD
-//api get user
-router.post("/user", (req, res) => {
-  let email = req.body.email;
-  User.findOne({ email: email }, (err, obj_user) => {
-    res.send(obj_user);
-=======
 //api Hapus Akun User
 router.delete("/user/delete", function(req, res) {
-  let email = req.body.email
-  User.deleteOne({email : email}, () => {
-    console.log('Akun ', email,' ', ' Telah DiHapus')
+  let email = req.body.email;
+  User.deleteOne({ email: email }, () => {
+    console.log("Akun ", email, " ", " Telah DiHapus");
     res.send("User Berhasil Dihapus");
->>>>>>> aa5e764739aeb8a2e4a6fdc2200aa6ac32e46200
   });
 });
 
 //api Ubah Password User
 router.put("/user/ubahpassword", function(req, res) {
-  let email = req.body.email
-  let password_lama = req.body.password_lama
+  let email = req.body.email;
+  let password_lama = req.body.password_lama;
   const salt = bcrypt.genSaltSync(10);
   let password_baru = bcrypt.hashSync(req.body.password_baru, salt);
-  User.findOne({ email : email}, (err,user) => {
+  User.findOne({ email: email }, (err, user) => {
     var cekpassword = bcrypt.compareSync(password_lama, user.password);
     if (cekpassword === true) {
-      User.findOneAndUpdate({email : email},{$set : {password : password_baru} }, () => {
-        console.log(email, ' Telah Mengubah Password')
+      User.findOneAndUpdate({ email: email }, { $set: { password: password_baru } }, () => {
+        console.log(email, " Telah Mengubah Password");
         res.send("Password Berhasil Di Ubah");
-      })  
-    }else{
+      });
+    } else {
       console.log(email, "Password Lama Salah");
       res.send("Password Lama Salah");
     }
-  })
+  });
 });
-
-
 
 //api hapus semua user
 router.delete("/clearmongo", function(req, res) {
