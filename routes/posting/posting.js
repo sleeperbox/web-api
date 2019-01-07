@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const Posting = require("../../model/Posting");
 const User = require("../../model/User");
+const Thank = require("../../model/Thanks");
 
 router.use(
   bodyParser.urlencoded({
@@ -82,23 +83,35 @@ router.post("/posting", (req, res) => {
 router.put("/posting/thanks/up", (req, res) => {
   let email = req.body.email;
   let id = req.body._id;
-  User.findOne({ email }, (err, hasil) => {
-    let thanks = hasil.total_thanks;
-    let count_thanks = thanks + 1;
-    User.findOneAndUpdate({ email: email }, { $set: { total_thanks: count_thanks } }, { new: true }, (err, result) =>
-      console.log("added", result)
-    );
-    Posting.findOne({ email, _id: id }, (err, post) => {
-      let myPost = post.thanks;
-      Posting.findOneAndUpdate(
-        { email: email, _id: id },
-        { $set: { thanks: myPost + 1 } },
-        { new: true },
-        (err, thanked) => {
-          res.send(thanked);
+  Thank.count( { email: email, idpost: id }, (err, thank) => {
+    if(thank == 1){
+      console.log("Sudah Thank")
+    }else {
+      User.findOne({ email }, (err, hasil) => {
+        let thanks = hasil.total_thanks;
+        let count_thanks = thanks + 1;
+        User.findOneAndUpdate({ email: email }, { $set: { total_thanks: count_thanks } }, { new: true }, (err, result) =>
+          console.log("added", result)
+        );
+        let thanks_user = {
+          idpost : id,
+          email : email
         }
-      );
-    });
+        var ty = new Thank(thanks_user)
+        ty.save()
+          Posting.findOne({ email, _id: id }, (err, post) => {
+            let myPost = post.thanks;
+            Posting.findOneAndUpdate(
+              { email: email, _id: id },
+              { $set: { thanks: myPost + 1 } },
+              { new: true },
+              (err, thanked) => {
+                res.send(thanked);
+              }
+            );
+          });
+        });
+    }
   });
 });
 
