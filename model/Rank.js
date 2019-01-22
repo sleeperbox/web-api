@@ -6,7 +6,7 @@ const RankSchema = new Schema({
     type: String
   },
   rank: {
-    type: String
+    type: Number
   },
   tgl: {
     type: String

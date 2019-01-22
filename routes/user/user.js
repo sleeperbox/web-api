@@ -191,27 +191,32 @@ router.post("/user/rank", function(req, res) {
   let tgl = date.toDateString();
   let email = req.body.email
   Ranking.find().sort({total_score: -1}).exec(function(err,a){
-    Rank.find({ tgl : tgl}, (err,ra) => {
-      if(ra){
-        Rank.find({ email : email}, (aww,rank_user) =>{
-          res.send(rank_user)
-        })
-      }else{
-        Ranking.count({}, (err, count) => {
-          for(var i = 0; i < count; i++){
-            var ranking_user = {
-              email : a[i].email,
-              rank : i,
-              tgl : tgl
-            }
-            var b = new Rank(ranking_user)
-            b.save()
+    Rank.count({}, (err,countra) => {
+      Ranking.count({}, (err,countran) => {
+        Rank.findOne({email : email}, (err, tg) => {
+          let tanggal = tg.tgl
+          if(countra === countran || tgl === tanggal ){
+            Rank.find({ email : email}, (aww,rank_user) =>{
+              res.send(rank_user)
+            })
+          }else{
+            Ranking.count({}, (err, count) => {
+              for(var i = 0; i < count; i++){
+                var ranking_user = {
+                  email : a[i].email,
+                  rank : i,
+                  tgl : tgl
+                }
+                var b = new Rank(ranking_user)
+                b.save()
+              }
+              Rank.find({ email : email}, (aww,rank_user) =>{
+                res.send(rank_user)
+              })
+            })
           }
-          Rank.find({ email : email}, (aww,rank_user) =>{
-            res.send(rank_user)
-          })
         })
-      }
+      })
     })
   });
 });
