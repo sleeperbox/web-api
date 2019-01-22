@@ -5,6 +5,8 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 const randtoken = require("rand-token");
 const User = require("../../model/User");
+const Ranking = require("../../model/Ranking");
+const Rank = require("../../model/Rank");
 const SeacrhPeople = require("../../model/SearchPeople");
 
 router.use(
@@ -93,7 +95,14 @@ router.post("/register", (req, res) => {
   };
   var people = new SeacrhPeople(new_akun);
   people.save();
-  console.log("User Baru Telah Terdaftar", akun);
+  
+  let rank = {
+    email: email,
+    total_score: 0
+  };
+  var ranking = new Ranking(rank);
+  ranking.save();
+  console.log(rank)
 });
 
 //api Upadate User
@@ -118,6 +127,7 @@ router.put("/user/tags", (req, res) => {
     }
   );
 });
+
 //api profile user
 router.post("/profile", (req, res) => {
   let email = req.body.email;
@@ -175,9 +185,54 @@ router.put("/user/ubahpassword", function(req, res) {
   });
 });
 
+//api Rank User
+router.post("/user/rank", function(req, res) {
+  let date = new Date();
+  let tgl = date.toDateString();
+  let email = req.body.email
+  Ranking.find().sort({total_score: -1}).exec(function(err,a){
+    Rank.find({ tgl : tgl}, (err,ra) => {
+      if(ra){
+        Rank.find({ email : email}, (aww,rank_user) =>{
+          res.send(rank_user)
+        })
+      }else{
+        Ranking.count({}, (err, count) => {
+          for(var i = 0; i < count; i++){
+            var ranking_user = {
+              email : a[i].email,
+              rank : i,
+              tgl : tgl
+            }
+            var b = new Rank(ranking_user)
+            b.save()
+          }
+          Rank.find({ email : email}, (aww,rank_user) =>{
+            res.send(rank_user)
+          })
+        })
+      }
+    })
+  });
+});
+
+router.post("/o", function(req, res) {
+  Rank.find({}, (a,s) => {
+    res.send(s)
+  })
+});
+
 //api hapus semua user
 router.delete("/clearmongo", function(req, res) {
   User.remove(function(err) {
+    if (err) res.json(err);
+    res.send("removed");
+  });
+});
+
+//api hapus semua rank
+router.delete("/rank", function(req, res) {
+  Rank.remove(function(err) {
     if (err) res.json(err);
     res.send("removed");
   });
@@ -191,4 +246,4 @@ router.post("/user/add", function(req, res) {
   });
 });
 
-module.exports = router;
+module.exports = router
