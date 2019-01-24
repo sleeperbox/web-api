@@ -7,6 +7,9 @@ const ThankSchema = new Schema({
   },
   email: {
     type: String
+  },
+  status: {
+    type: String
   }
 })
 

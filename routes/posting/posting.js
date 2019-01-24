@@ -80,14 +80,35 @@ router.post("/posting", (req, res) => {
   });
 });
 
+//api thank post sendiri
 router.put("/posting/thanks/up", (req, res) => {
   let email = req.body.email;
   let id = req.body._id;
   Thank.count( { email: email, idpost: id }, (err, thank) => {
     if(thank == 1){
-      console.log("Sudah Thank")
+      User.findOne({ email : email }, (err, hasil) => {
+        let thanks = hasil.total_thanks;
+        let count_thanks = thanks - 1;
+        User.findOneAndUpdate({ email: email }, { $set: { total_thanks: count_thanks } }, { new: true }, (err, result) =>
+          console.log("added", result)
+        );
+        Thank.deleteOne({email : email, idpost : id})
+        .then( () => {
+          Posting.findOne({ email, _id: id }, (err, post) => {
+            let myPost = post.thanks;
+            Posting.findOneAndUpdate(
+              { email: email, _id: id },
+              { $set: { thanks: myPost - 1 } },
+              { new: true },
+              (err, thanked) => {
+                res.send(thanked);
+              }
+            );
+          });
+        });
+        });
     }else {
-      User.findOne({ email }, (err, hasil) => {
+      User.findOne({ email : email }, (err, hasil) => {
         let thanks = hasil.total_thanks;
         let count_thanks = thanks + 1;
         User.findOneAndUpdate({ email: email }, { $set: { total_thanks: count_thanks } }, { new: true }, (err, result) =>
@@ -111,6 +132,69 @@ router.put("/posting/thanks/up", (req, res) => {
             );
           });
         });
+    }
+  });
+});
+
+//api thanks post teman
+router.put("/posting/thanks/post/user", (req, res) => {
+  let email = req.body.email;
+  let username = req.body.username
+  let id = req.body._id;
+  Thank.count( { email: email, idpost: id }, (err, thank) => {
+    if(thank == 1){
+      User.findOne({username : username}, (err, user) => {
+        let email_user = user.email
+      User.findOne({ email : email_user }, (err, hasil) => {
+        let thanks = hasil.total_thanks;
+        let count_thanks = thanks - 1;
+        User.findOneAndUpdate({ email: email_user }, { $set: { total_thanks: count_thanks } }, { new: true }, (err, result) =>
+          console.log("added", result)
+        );
+        Thank.deleteOne({ email: email, idpost: id})
+        .then(() => {
+          Posting.findOne({ email : email_user, _id: id }, (err, post) => {
+            let myPost = post.thanks;
+            Posting.findOneAndUpdate(
+              { email: email_user, _id: id },
+              { $set: { thanks: myPost - 1 } },
+              { new: true },
+              (err, thanked) => {
+                res.send(thanked);
+              }
+            );
+          });
+        })
+        })
+      });
+    }else {
+      User.findOne({username : username}, (err, user) => {
+        let email_user = user.email
+      User.findOne({ email : email_user }, (err, hasil) => {
+        let thanks = hasil.total_thanks;
+        let count_thanks = thanks + 1;
+        User.findOneAndUpdate({ email: email_user }, { $set: { total_thanks: count_thanks } }, { new: true }, (err, result) =>
+          console.log("added", result)
+        );
+        let thanks_user = {
+          idpost : id,
+          email : email
+        }
+        var ty = new Thank(thanks_user)
+        ty.save()
+          Posting.findOne({ email : email_user, _id: id }, (err, post) => {
+            let myPost = post.thanks;
+            Posting.findOneAndUpdate(
+              { email: email_user, _id: id },
+              { $set: { thanks: myPost + 1 } },
+              { new: true },
+              (err, thanked) => {
+                res.send(thanked);
+              }
+            );
+          });
+        })
+      });
     }
   });
 });
