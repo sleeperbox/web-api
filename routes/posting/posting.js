@@ -101,7 +101,10 @@ router.put("/posting/thanks/up", (req, res) => {
               { $set: { thanks: myPost - 1 } },
               { new: true },
               (err, thanked) => {
-                res.send(thanked);
+                let kode = {
+                  kode: 0
+                }
+                res.send({thank:thanked, kode:kode});
               }
             );
           });
@@ -127,7 +130,10 @@ router.put("/posting/thanks/up", (req, res) => {
               { $set: { thanks: myPost + 1 } },
               { new: true },
               (err, thanked) => {
-                res.send(thanked);
+                let kode = {
+                  kode: 1
+                }
+                res.send({thank:thanked, kode:kode});
               }
             );
           });
@@ -160,7 +166,10 @@ router.put("/posting/thanks/post/user", (req, res) => {
               { $set: { thanks: myPost - 1 } },
               { new: true },
               (err, thanked) => {
-                res.send(thanked);
+                let kode = {
+                  kode: 0
+                }
+                res.send({thank:thanked, kode:kode});
               }
             );
           });
@@ -189,13 +198,26 @@ router.put("/posting/thanks/post/user", (req, res) => {
               { $set: { thanks: myPost + 1 } },
               { new: true },
               (err, thanked) => {
-                res.send(thanked);
+                let kode = {
+                  kode: 1
+                }
+                res.send({thank:thanked, kode:kode});
               }
             );
           });
         })
       });
     }
+  });
+});
+
+//api thank sudah/belum
+//api view posting di profile
+router.get("/posting/thank", (req, res) => {
+  let email = req.body.email;
+  Posting.find({ email: email }, (err, thank) => {
+    res.send(thank);
+    console.log(email, "melihat posting di profile");
   });
 });
 
