@@ -18,6 +18,7 @@ app.use("/api", require("./routes/auth/google"));
 app.use("/api", require("./routes/user/user"));
 app.use("/api", require("./routes/friend/friend"));
 app.use("/api", require("./routes/tags/tags"));
+app.use("/api", require("./routes/ClearData/clear"));
 app.use("/api", require("./routes/posting/posting"));
 app.use("/api", require("./routes/user/uploadfoto"));
 app.use("/api/profile", require("./routes/profile/buttom-menu"));
