@@ -72,7 +72,8 @@ router.post("/register", (req, res) => {
     awards: 0,
     join_date: join_date,
     total_thanks: 0,
-    tags: ["other"]
+    tags: ["other"],
+    foto: "koala.jpg",
   };
   User.findOne({ email: email }, (er, user) => {
     if (!user) {

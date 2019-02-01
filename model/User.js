@@ -49,7 +49,10 @@ const UserSchema = new Schema({
     {
       type: String
     }
-  ]
+  ],
+  foto: {
+    type: String
+  }
 });
 
 const User = mongoose.model("User", UserSchema);

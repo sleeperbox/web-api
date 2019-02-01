@@ -7,6 +7,7 @@ const upload = multer({dest: '/public'});
 const fs = require("fs");
 const path = require("path");
 const Foto = require("../../model/Foto");
+const User = require("../../model/User");
 
 router.use(
   bodyParser.urlencoded({
@@ -31,13 +32,16 @@ router.post('/upload/avatar', upload.single('avatar'), (req, res) => {
          if( err ){
             res.send(err)
          }else{
+                  
+            
+            User.findOneAndUpdate({ email: email }, { $set: { foto: avatar } }, function() {  })
+
             Foto.count({email: email}, (err,user) => {
                 if(user == 1){
                     Foto.findOne({ email: email}, (err,user) => {
                         let avatar_lama = user.avatar
                         fs.unlink(__dirname + '/../../public/avatar/' + avatar_lama)
-                    })
-                    .then( (user) => {
+                    }).then( (user) => {
                         let email_user = user.email
                         Foto.findOneAndUpdate({ email: email_user }, { $set: { avatar: avatar } }, function() {
                             res.send('Mengganti foto avatar')
@@ -56,6 +60,7 @@ router.post('/upload/avatar', upload.single('avatar'), (req, res) => {
                 }
             })
           }
+
        });
    });
 });

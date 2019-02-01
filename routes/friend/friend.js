@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const Friend = require("../../model/Friend");
 const User = require("../../model/User");
+const Foto = require("../../model/Foto");
 
 router.use(
   bodyParser.urlencoded({
@@ -17,8 +18,11 @@ router.use(cors());
 router.post("/friend", (req, res) => {
   let emails = req.body.email;
   User.find({ email: { $ne: emails } }, (err, user) => {
-    res.send(user);
+    Foto.find({ email: { $ne: emails } }, (err, foto) => {
+      res.send({user: user, foto: foto});
+    });
   });
+  
 });
 
 router.post("/people/profile", (req, res) => {
