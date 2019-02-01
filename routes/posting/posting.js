@@ -211,8 +211,23 @@ router.put("/posting/thanks/post/user", (req, res) => {
   });
 });
 
+//api Delete Posting
+router.delete("/posting/delete", (req, res) => {
+  let email = req.body.email;
+  let id = req.body._id;
+  Posting.deleteOne({ email: email, _id: id }, () => {
+    User.findOne({ email : email }, (err, hasil) => {
+      let thanks = hasil.total_posts;
+      let count_thanks = thanks - 1;
+      User.findOneAndUpdate({ email: email }, { $set: { total_posts: count_thanks } }, { new: true }, (err, result) => {
+        console.log("added", result)
+      });
+    });
+  });
+});
+
+
 //api thank sudah/belum
-//api view posting di profile
 router.get("/posting/thank", (req, res) => {
   let email = req.body.email;
   Posting.find({ email: email }, (err, thank) => {
