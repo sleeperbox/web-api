@@ -254,6 +254,13 @@ router.post("/posting/tag", (req, res) => {
   });
 });
 
+//api posting Home
+router.post("/posting/home", (req, res) => {
+  Posting.find({}, (err, posting) => {
+    res.send(posting);
+  });
+});
+
 router.post("/posting/people", (req, res) => {
   let username = req.body.username;
   Posting.find({ username: username }, (err, posting) => {
