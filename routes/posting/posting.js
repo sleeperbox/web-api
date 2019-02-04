@@ -254,11 +254,77 @@ router.post("/posting/tag", (req, res) => {
   });
 });
 
-//api posting Home
-router.post("/posting/home", (req, res) => {
-  Posting.find({}, (err, posting) => {
+//api posting menurut tag
+router.post("/posting/tag", (req, res) => {
+  let tag = req.body.tag;
+  Posting.find({ tags: tag }, (err, posting) => {
     res.send(posting);
+    console.log(tag, "melihat posting di profile");
   });
+});
+
+//api posting Home Other
+router.post("/posting/home/other", (req, res) => {
+  let tag = "other"
+  Posting.find({tags: tag}).sort({_id: -1}).exec(function(err,posting){
+    res.send(posting)
+  })
+});
+
+//api posting Home Qoutes
+router.post("/posting/home/quotes", (req, res) => {
+  let tag = "quotes"
+  Posting.find({tags: tag}).sort({_id: -1}).exec(function(err,posting){
+    res.send(posting)
+  })
+});
+
+//api posting Home Computer-gadget
+router.post("/posting/home/computer-gadget", (req, res) => {
+  let tag = "computer-gadget"
+  Posting.find({tags: tag}).sort({_id: -1}).exec(function(err,posting){
+    res.send(posting)
+  })
+});
+
+//api posting Home Family-love
+router.post("/posting/home/family-love", (req, res) => {
+  let tag = "family-love"
+  Posting.find({tags: tag}).sort({_id: -1}).exec(function(err,posting){
+    res.send(posting)
+  })
+});
+
+//api posting Home Fakta-rumor
+router.post("/posting/home/fact-rumour", (req, res) => {
+  let tag = "fact-rumour"
+  Posting.find({tags: tag}).sort({_id: -1}).exec(function(err,posting){
+    res.send(posting)
+  })
+});
+
+//api posting Home Bussiness-work
+router.post("/posting/home/bussiness-work", (req, res) => {
+  let tag = "business-work"
+  Posting.find({tags: tag}).sort({_id: -1}).exec(function(err,posting){
+    res.send(posting)
+  })
+});
+
+//api posting Home Fashion-lifestyle
+router.post("/posting/home/fashion-lifestyle", (req, res) => {
+  let tag = "fashion-lifestyle"
+  Posting.find({tags: tag}).sort({_id: -1}).exec(function(err,posting){
+    res.send(posting)
+  })
+});
+
+//api posting Home Riddles
+router.post("/posting/home/riddles", (req, res) => {
+  let tag = "riddles"
+  Posting.find({tags: tag}).sort({_id: -1}).exec(function(err,posting){
+    res.send(posting)
+  })
 });
 
 router.post("/posting/people", (req, res) => {
