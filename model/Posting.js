@@ -2,6 +2,9 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 const PostingSchema = new Schema({
+  id_posts: {
+    type: String
+  },
   email: {
     type: String
   },
@@ -9,13 +12,22 @@ const PostingSchema = new Schema({
     type: String
   },
   content: {
-    type: Text
+    type: String
   },
   date : {
-    type: Date
+    type: String
   },
-  like : {
+  jam : {
+    type: String
+  },
+  menit : {
+    type: String
+  },
+  thanks : {
     type: Number
+  },
+  tags : {
+    type : String
   },
   status : {
     type : String

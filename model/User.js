@@ -1,5 +1,5 @@
-const mongoose = require('mongoose')
-const Schema = mongoose.Schema
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
   email: {
@@ -14,38 +14,46 @@ const UserSchema = new Schema({
   last_name: {
     type: String
   },
-  tgl_lahir:{
+  tgl_lahir: {
     type: Date
   },
-  jenis_kelamin:{
+  jenis_kelamin: {
     type: String
   },
-  password:{
+  password: {
     type: String,
     min: 6
   },
-  token:{
+  token: {
     type: String
   },
-  auth:{
+  auth: {
     type: Boolean
   },
-  total_thanks:{
+  total_thanks: {
     type: Number
   },
-  total_posts:{
+  total_posts: {
     type: Number
   },
-  total_friends:{
+  total_friends: {
     type: Number
   },
-  awards:{
+  awards: {
     type: Number
   },
-  join_date:{
-    type: Date
+  join_date: {
+    type: String
+  },
+  tags: [
+    {
+      type: String
+    }
+  ],
+  foto: {
+    type: String
   }
-})
+});
 
-const User = mongoose.model('User', UserSchema)
-module.exports = User
+const User = mongoose.model("User", UserSchema);
+module.exports = User;
