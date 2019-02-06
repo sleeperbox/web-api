@@ -5,6 +5,7 @@ const cors = require("cors");
 const Posting = require("../../model/Posting");
 const User = require("../../model/User");
 const Thank = require("../../model/Thanks");
+const Comment = require("../../model/Comment");
 
 router.use(
   bodyParser.urlencoded({
@@ -37,6 +38,47 @@ router.get("/posts", (req, res) => {
     res.send(obj_user);
   });
 });
+
+//get comment data
+//api get all user
+router.get("/posts/:id_posts", (req, res) => {
+  var id_post = req.params.id_posts
+  Posting.findOne({ id_posts: id_post }, (err, posting) => {
+    res.send(posting);
+  });
+});
+
+router.get("/posts/comment", (req, res) => {
+  Comment.find({}, (err, obj_user) => {
+    if(err){
+      res.send(err)
+    }else{
+    var userMap = {};
+    obj_user.forEach(function(users) {
+      userMap[users._id] = users;
+    });
+    res.send(obj_user);
+  }
+  });
+  });
+
+router.post("/posts/comment", (req, res) => {
+  let email = req.body.email;
+  let comment = req.body.comment;
+  let id = req.body.id_posts;
+  let username = req.body.username;
+      let postcomment = {
+        id_posts: id,
+        email: email,
+        username: username,
+        comment: comment,
+        status: "publish"
+      };
+      let commenting = new Comment(postcomment);
+      commenting.save();
+      console.log(email, "Membuat komentar");
+      res.send(commenting);
+    });
 
 // api user posting
 router.post("/posting", (req, res) => {
