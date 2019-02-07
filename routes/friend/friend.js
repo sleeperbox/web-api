@@ -25,6 +25,15 @@ router.post("/friend", (req, res) => {
   
 });
 
+//api search people
+router.post("/search", (req, res) => {
+  var username = req.body.username;
+  User.find({username:{ $regex: username}}, (err,user) => {
+    res.send(user)
+  })
+  
+});
+
 router.post("/people/profile", (req, res) => {
   let email = req.body;
   User.find({ email: email }, (err, user) => {

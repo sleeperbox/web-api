@@ -2,13 +2,25 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const MessageSchema = new Schema({
-  username: {
+  kode_chat: {
     type: String
   },
-  content: {
+  username_user1: {
     type: String
   },
-  time: {
+  name_user1: {
+    type: String
+  },
+  username_user2: {
+    type: String
+  },
+  name_user2: {
+    type: String
+  },
+  message: {
+    type: String
+  },
+  date: {
     type: String
   },
   status: {
