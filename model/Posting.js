@@ -31,6 +31,9 @@ const PostingSchema = new Schema({
   },
   status : {
     type : String
+  },
+  foto: {
+    type: String
   }
 })
 
