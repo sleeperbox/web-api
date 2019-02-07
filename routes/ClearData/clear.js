@@ -34,8 +34,10 @@ router.delete("/clear/data", function(req, res) {
                                 Ranking.deleteMany({}, () => {
                                     SeacrhPeople.deleteMany({}, () => {
                                         Thanks.deleteMany({}, () => {
-                                            Comments.deleteMany({}, () => {
+                                            Message.deleteMany({}, () => {
+                                              Comments.deleteMany({}, () => {
                                                 res.send("Remove")
+                                              })
                                             })
                                         })
                                     })
