@@ -12,6 +12,7 @@ const Posting = require("../../model/Posting");
 const Thanks = require("../../model/Thanks");
 const Rank = require("../../model/Rank");
 const SeacrhPeople = require("../../model/SearchPeople");
+const Comments = require("../../model/Comment")
 
 router.use(
   bodyParser.urlencoded({
@@ -34,7 +35,9 @@ router.delete("/clear/data", function(req, res) {
                                     SeacrhPeople.deleteMany({}, () => {
                                         Thanks.deleteMany({}, () => {
                                             Message.deleteMany({}, () => {
+                                              Comments.deleteMany({}, () => {
                                                 res.send("Remove")
+                                              })
                                             })
                                         })
                                     })
