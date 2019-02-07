@@ -16,6 +16,18 @@ const CommentSchema = new Schema({
   },
   status : {
     type : String
+  },
+  foto: {
+    type: String
+  },
+  total_posts: {
+    type: Number
+  },
+  total_friends: {
+    type: Number
+  },
+  total_thanks: {
+    type: Number
   }
 })
 

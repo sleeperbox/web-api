@@ -5,7 +5,7 @@ const cors = require("cors");
 const Posting = require("../../model/Posting");
 const User = require("../../model/User");
 const Thank = require("../../model/Thanks");
-const Comment = require("../../model/Comment");
+const Comments = require("../../model/Comment");
 
 router.use(
   bodyParser.urlencoded({
@@ -39,8 +39,7 @@ router.get("/posts", (req, res) => {
   });
 });
 
-//get comment data
-//api get all user
+//get posting data
 router.get("/posts/:id_posts", (req, res) => {
   var id_post = req.params.id_posts
   Posting.findOne({ id_posts: id_post }, (err, posting) => {
@@ -48,37 +47,61 @@ router.get("/posts/:id_posts", (req, res) => {
   });
 });
 
-router.get("/posts/comment", (req, res) => {
-  Comment.find({}, (err, obj_user) => {
-    if(err){
-      res.send(err)
-    }else{
-    var userMap = {};
-    obj_user.forEach(function(users) {
-      userMap[users._id] = users;
+//get all comment listed
+router.get("/comments", (req, res) => {
+  Comments.find({}, (err, obj_comment) => {
+    var commentMap = {};
+    obj_comment.forEach(function(comments) {
+      commentMap[comments._id] = comments;
     });
-    res.send(obj_user);
-  }
+    res.send(obj_comment);
   });
-  });
+});
 
-router.post("/posts/comment", (req, res) => {
-  let email = req.body.email;
-  let comment = req.body.comment;
-  let id = req.body.id_posts;
+//get all comment by id post 
+router.post("/comments", (req, res) => {
+  var id_post = req.body.id_posts
+  Comments.find({id_posts: id_post}, (err, obj_comment) => {
+    var commentMap = {};
+    obj_comment.forEach(function(comments) {
+      commentMap[comments._id] = comments;
+    });
+    res.send(obj_comment);
+  });
+});
+
+//posting comment
+router.post("/posts/comments", (req, res) => {
   let username = req.body.username;
+  User.findOne({ username: username }, (err, user) => {
+
+    let id = req.body.id_posts;
+    let email = req.body.email;
+    let comment = req.body.comment;
+    
+    let foto = user.foto;
+    let total_posts = user.total_posts;
+    let total_friends = user.total_friends;
+    let total_thanks = user.total_thanks;
+
       let postcomment = {
         id_posts: id,
         email: email,
         username: username,
         comment: comment,
-        status: "publish"
+        status: "publish",
+        foto: foto,
+        total_posts: total_posts,
+        total_friends: total_friends,
+        total_thanks: total_thanks
       };
-      let commenting = new Comment(postcomment);
+
+      let commenting = new Comments(postcomment);
       commenting.save();
       console.log(email, "Membuat komentar");
       res.send(commenting);
-    });
+    })
+  });
 
 // api user posting
 router.post("/posting", (req, res) => {
@@ -93,6 +116,7 @@ router.post("/posting", (req, res) => {
   User.findOne({ email: email }, (err, user) => {
     Posting.count({}, (err, postingan) => {
       let id = postingan;
+      let foto = user.foto
       let username = user.username;
       let posts = user.total_posts;
       let total_post;
@@ -108,7 +132,8 @@ router.post("/posting", (req, res) => {
         menit: menit,
         thanks: thanks,
         tags: tags,
-        status: "publish"
+        status: "publish",
+        foto: foto
       };
       let posting = new Posting(post);
       posting.save();
