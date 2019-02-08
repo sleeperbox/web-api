@@ -8,7 +8,8 @@ const fs = require("fs");
 const path = require("path");
 const Foto = require("../../model/Foto");
 const User = require("../../model/User");
-
+const Comment = require("../../model/Comment"); 
+const Posting = require("../../model/Posting")
 router.use(
   bodyParser.urlencoded({
     extended: false
@@ -44,7 +45,17 @@ router.post('/upload/avatar', upload.single('avatar'), (req, res) => {
                     }).then( (user) => {
                         let email_user = user.email
                         Foto.findOneAndUpdate({ email: email_user }, { $set: { avatar: avatar } }, function() {
-                            res.send('Mengganti foto avatar')
+                           res.send('ok')
+                        })
+                    }).then(() => {
+                        User.findOne({email: email}, (err, mine) => {
+                        let username = mine.username
+                        let fotos = mine.foto
+                        Comment.updateMany({username: username}, {$set: {foto: fotos}}, function(err, comments) {
+                            Posting.updateMany({username: username}, {$set: {foto: fotos}}, function(err, hasil) {
+                                console.log('foto koment & posting ganti: ', hasil)
+                                })
+                            })
                         })
                     })
                 }else{
