@@ -108,4 +108,35 @@ router.post("/detail/message",(req, res) => {
     })
 })
 
+//Api Notif Message
+router.post("/notif/message",(req, res) => {
+    let email = req.body.email
+    User.findOne({email : email}, (err,user) => {
+        let username = user.username
+        Message.count({ username_user2: username,status: "Send"}, (err,message) => {
+            res.send(""+message)
+        })
+    })
+})
+
+//Api Read Message
+router.post("/read/message",(req, res) => {
+    let username_user1 = req.body.username_user1
+    let email = req.body.email
+    User.findOne({email: email}, (err,user) => {
+        let username_user2 = user.username
+        Message.updateMany({username_user1: username_user1,username_user2: username_user2}, {$set: {status: "Read"}}, function() {
+            console.log(username_user2 + "Sedang Membaca Pesan dari" + username_user2)
+        })
+    })
+})
+
+//Api Read Message
+router.post("/message/head",(req, res) => {
+    let username = req.body.username
+    User.findOne({username: username}, (err,user) => {
+        res.send(user)
+    })
+})
+
 module.exports = router;
