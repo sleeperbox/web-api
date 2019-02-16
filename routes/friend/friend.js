@@ -28,7 +28,7 @@ router.post("/friend", (req, res) => {
 //api search people
 router.post("/search", (req, res) => {
   var username = req.body.username;
-  User.find({username:{ $regex: username}}, (err,user) => {
+  User.find({ $or: [{ username: {$regex:username}},{ first_name: {$regex:username}},{ last_name: {$regex:username}}]}, (err,user) => {
     res.send(user)
   })
   
