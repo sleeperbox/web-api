@@ -5,6 +5,7 @@ const cors = require("cors");
 const randtoken = require("rand-token");
 const User = require("../../model/User");
 const Message = require("../../model/Message");
+const ListMessage = require("../../model/ListMessage");
 
 router.use(
   bodyParser.urlencoded({
@@ -19,13 +20,18 @@ router.get("/", (req, res) => {
   res.send("Success Opening Main API...");
 });
 
+router.get("/list",(req, res) => {
+    ListMessage.find({}, (q,a) => {
+        res.send(a)
+    })
+})
 //Api Message
 router.post("/list/message",(req, res) => {
     let email = req.body.email
     User.findOne({email : email}, (err, user) => {
         let username_user2 = user.username
-        Message.find({$or: [{ username_user1: username_user2},{ username_user2: username_user2}]}).distinct("username_user1", (err,message) => {
-            res.send(message)
+        ListMessage.find({$or: [{username_user1: username_user2},{ username_user2: username_user2}]}).sort({ _id: -1}).exec(function(err,list){
+            res.send(list)
         })
     })
 })
@@ -59,7 +65,9 @@ router.post("/send/message",(req, res) => {
                     status: "Send"
                 }
                     var send = new Message(pesan)
+                    var send2 = new ListMessage(pesan)
                     send.save()
+                    send2.save()
                     res.send(pesan)
                 })
             }else{
@@ -68,20 +76,25 @@ router.post("/send/message",(req, res) => {
                     let name_user2 = user_received.first_name + " " + user_received.last_name
                     Message.findOne({ _id : _id}, (err,result) => {
                         let kode_chat = result.kode_chat
-                        let pesan = {
-                            kode_chat : kode_chat,
-                            username_user1 : username_user1,
-                            name_user1 : name_user1,
-                            username_user2 : username_user2,
-                            name_user2 : name_user2,
-                            message : message,
-                            date : jam + ":" + menit + "," + tgl,
-                            status: "Send"
-                        }
-                            var send = new Message(pesan)
-                            send.save()
-                            res.send(pesan)
-                        })  
+                        ListMessage.deleteMany({ kode_chat: kode_chat}).then( () => {
+                            let pesan = {
+                                kode_chat : kode_chat,
+                                username_user1 : username_user1,
+                                name_user1 : name_user1,
+                                username_user2 : username_user2,
+                                name_user2 : name_user2,
+                                message : message,
+                                date : jam + ":" + menit + "," + tgl,
+                                status: "Send"
+                            }
+                                var send = new Message(pesan)
+                                send.save()
+                                var send2 = new ListMessage(pesan)
+                                send2.save()
+                                res.send(pesan)
+                            })
+                        })
+                          
                     })
             }
         })
