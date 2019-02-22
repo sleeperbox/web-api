@@ -7,6 +7,7 @@ const randtoken = require("rand-token");
 const User = require("../../model/User");
 const Ranking = require("../../model/Ranking");
 const Rank = require("../../model/Rank");
+const Foto = require("../../model/Foto");
 const SeacrhPeople = require("../../model/SearchPeople");
 
 router.use(
@@ -45,7 +46,6 @@ router.post("/login", (req, res) => {
     }
   });
 });
-
 //api register
 router.post("/register", (req, res) => {
   let email = req.body.email;
@@ -55,9 +55,30 @@ router.post("/register", (req, res) => {
   const salt = bcrypt.genSaltSync(10);
   let password = bcrypt.hashSync(req.body.password, salt);
   let token = randtoken.generate(10);
+  let noPP = Math.floor(Math.random() * Math.floor(8));
+  let PP = null;
   let auth = true;
   let date = new Date();
   let join_date = date.toDateString();
+
+  if( noPP == 1){
+    PP = "default profil 1.png"
+  }else if( noPP == 2){
+    PP = "default profil 2.png"
+  }else if( noPP == 3){
+    PP = "default profil 3 .png"
+  }else if( noPP == 4){
+    PP = "default profil 4.png"
+  }else if( noPP == 5){
+    PP = "default profil 5.png"
+  }else if( noPP == 6){
+    PP = "default profil 6.png"
+  }else if( noPP == 7){
+    PP = "default profil 7.png"
+  }else {
+    PP = "default profil 8.png"
+  }
+
   let akun = {
     email: email,
     username: username,
@@ -73,12 +94,18 @@ router.post("/register", (req, res) => {
     join_date: join_date,
     total_thanks: 0,
     tags: ["other"],
-    foto: "koala.jpg",
+    foto: PP,
   };
   User.findOne({ email: email }, (er, user) => {
     if (!user) {
       var users = new User(akun);
       users.save();
+      let foto_avatar = {
+        email: email,
+        avatar: PP
+    }
+    var foto = new Foto(foto_avatar)
+    foto.save()
       console.log("User Baru Telah di Daftarkan");
       res.send(akun);
     } else {
