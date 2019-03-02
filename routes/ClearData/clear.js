@@ -14,7 +14,6 @@ const Rank = require("../../model/Rank");
 const SeacrhPeople = require("../../model/SearchPeople");
 const Comments = require("../../model/Comment");
 const ListMessage = require("../../model/ListMessage");
-const FotoPost = require("../../model/FotoPost");
 
 router.use(
   bodyParser.urlencoded({
