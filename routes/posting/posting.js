@@ -349,7 +349,7 @@ router.post("/posting/profile", (req, res) => {
   Posting.find({ email: email }, (err, posting) => {
     res.send(posting);
     console.log(email, "melihat posting di profile");
-  });
+  }).sort({_id: -1});
 });
 
 //api posting menurut tag
