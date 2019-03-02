@@ -6,6 +6,9 @@ const Posting = require("../../model/Posting");
 const User = require("../../model/User");
 const Thank = require("../../model/Thanks");
 const Comments = require("../../model/Comment");
+const multer = require("multer");
+const upload = multer({dest: '/public'});
+const fs = require("fs");
 
 router.use(
   bodyParser.urlencoded({
@@ -104,11 +107,12 @@ router.post("/posts/comments", (req, res) => {
   });
 
 // api user posting
-router.post("/posting", (req, res) => {
+router.post("/posting", upload.single('fotocontent'), (req, res) => {
   let email = req.body.email;
   let content = req.body.content;
   let thanks = 0;
   let tags = req.body.tags;
+  let fotocontent = req.file.originalname
   let tanggal = new Date();
   let date = tanggal.toDateString();
   let jam = tanggal.getHours();
@@ -120,6 +124,41 @@ router.post("/posting", (req, res) => {
       let username = user.username;
       let posts = user.total_posts;
       let total_post;
+      if(fotocontent != null){
+        var file = __dirname + "/../../public/posting/foto/" + fotocontent;
+        fs.readFile(req.file.path, function (err, data) {
+          fs.writeFile(file, data, function (err) {
+            if(err){
+              res.send(err)
+            }else{
+              posts === 0 ? (total_post = 1) : (total_post = posts + 1);
+      let id_post = id + 1;
+      let post = {
+        id_posts: id_post,
+        email: email,
+        username: username,
+        content: content,
+        fotocontent: fotocontent,
+        date: date,
+        jam: jam,
+        menit: menit,
+        thanks: thanks,
+        tags: tags,
+        status: "publish",
+        foto: foto
+      };
+      let posting = new Posting(post);
+      posting.save();
+      console.log(email, "Membuat Postingan baru");
+      res.send(posting);
+
+      User.findOneAndUpdate({ email: email }, { $set: { total_posts: total_post } }, (err, posts) => {
+        console.log(posts);
+      });
+            }
+          });
+        });
+      }else{
       posts === 0 ? (total_post = 1) : (total_post = posts + 1);
       let id_post = id + 1;
       let post = {
@@ -143,7 +182,8 @@ router.post("/posting", (req, res) => {
       User.findOneAndUpdate({ email: email }, { $set: { total_posts: total_post } }, (err, posts) => {
         console.log(posts);
       });
-    });
+    }
+  });
   });
 });
 

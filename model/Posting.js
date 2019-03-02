@@ -14,6 +14,9 @@ const PostingSchema = new Schema({
   content: {
     type: String
   },
+  fotocontent: {
+    type: String
+  },
   date : {
     type: String
   },

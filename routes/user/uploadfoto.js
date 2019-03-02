@@ -7,6 +7,7 @@ const upload = multer({dest: '/public'});
 const fs = require("fs");
 const path = require("path");
 const Foto = require("../../model/Foto");
+const FotoPost = require("../../model/FotoPost");
 const User = require("../../model/User");
 const Comment = require("../../model/Comment"); 
 const Posting = require("../../model/Posting")
@@ -75,6 +76,7 @@ router.post('/upload/avatar', upload.single('avatar'), (req, res) => {
        });
    });
 });
+
 
 //api menampilkan avatar user di profile
 router.post("/user/avatar", (req, res) => {
