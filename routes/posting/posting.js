@@ -112,7 +112,7 @@ router.post("/posting", upload.single('fotocontent'), (req, res) => {
   let content = req.body.content;
   let thanks = 0;
   let tags = req.body.tags;
-  let fotocontent = req.file.originalname
+  let kode_post = req.body.kode
   let tanggal = new Date();
   let date = tanggal.toDateString();
   let jam = tanggal.getHours();
@@ -124,7 +124,8 @@ router.post("/posting", upload.single('fotocontent'), (req, res) => {
       let username = user.username;
       let posts = user.total_posts;
       let total_post;
-      if(fotocontent != null){
+      if(kode_post == 1){
+        let fotocontent = req.file.originalname
         var file = __dirname + "/../../public/posting/foto/" + fotocontent;
         fs.readFile(req.file.path, function (err, data) {
           fs.writeFile(file, data, function (err) {
@@ -166,6 +167,7 @@ router.post("/posting", upload.single('fotocontent'), (req, res) => {
         email: email,
         username: username,
         content: content,
+        fotocontent: null,
         date: date,
         jam: jam,
         menit: menit,
@@ -346,10 +348,9 @@ router.get("/posting/thank", (req, res) => {
 //api view posting di profile
 router.post("/posting/profile", (req, res) => {
   let email = req.body.email;
-  Posting.find({ email: email }, (err, posting) => {
-    res.send(posting);
-    console.log(email, "melihat posting di profile");
-  });
+  Posting.find({ email: email }).sort({_id: -1}).exec(function(err,posting){
+    res.send(posting)
+  })
 });
 
 //api posting menurut tag
