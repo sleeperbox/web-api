@@ -348,16 +348,13 @@ router.get("/posting/thank", (req, res) => {
 //api view posting di profile
 router.post("/posting/profile", (req, res) => {
   let email = req.body.email;
-<<<<<<< HEAD
   Posting.find({ email: email }).sort({_id: -1}).exec(function(err,posting){
     res.send(posting)
   })
-=======
   Posting.find({ email: email }, (err, posting) => {
     res.send(posting);
     console.log(email, "melihat posting di profile");
   }).sort({_id: -1});
->>>>>>> 89499066763da502abe448064a60bd0f6dbba297
 });
 
 //api posting menurut tag
