@@ -112,7 +112,7 @@ router.post("/posting", upload.single('fotocontent'), (req, res) => {
   let content = req.body.content;
   let thanks = 0;
   let tags = req.body.tags;
-  let kode_post = req.body.kode
+  let kode_post = req.body.kode_post
   let tanggal = new Date();
   let date = tanggal.toDateString();
   let jam = tanggal.getHours();
@@ -147,7 +147,7 @@ router.post("/posting", upload.single('fotocontent'), (req, res) => {
         tags: tags,
         status: "publish",
         foto: foto
-      };
+      }
       let posting = new Posting(post);
       posting.save();
       console.log(email, "Membuat Postingan baru");
@@ -351,10 +351,6 @@ router.post("/posting/profile", (req, res) => {
   Posting.find({ email: email }).sort({_id: -1}).exec(function(err,posting){
     res.send(posting)
   })
-  Posting.find({ email: email }, (err, posting) => {
-    res.send(posting);
-    console.log(email, "melihat posting di profile");
-  }).sort({_id: -1});
 });
 
 //api posting menurut tag
