@@ -77,18 +77,20 @@ router.post("/comments", (req, res) => {
 router.post("/posts/comments", (req, res) => {
   let username = req.body.username;
   User.findOne({ username: username }, (err, user) => {
-
     let id = req.body.id_posts;
-    let email = req.body.email;
-    let comment = req.body.comment;
+    Posting.findOne({id_posts: id}, (err, user_post) => {
+      let email_post = user_post.email
+      let email = req.body.email;
+      let comment = req.body.comment;
     
-    let foto = user.foto;
-    let total_posts = user.total_posts;
-    let total_friends = user.total_friends;
-    let total_thanks = user.total_thanks;
+      let foto = user.foto;
+      let total_posts = user.total_posts;
+      let total_friends = user.total_friends;
+      let total_thanks = user.total_thanks;
 
       let postcomment = {
         id_posts: id,
+        email_post: email_post,
         email: email,
         username: username,
         comment: comment,
@@ -96,15 +98,41 @@ router.post("/posts/comments", (req, res) => {
         foto: foto,
         total_posts: total_posts,
         total_friends: total_friends,
-        total_thanks: total_thanks
+        total_thanks: total_thanks,
+        seen: 1
       };
 
       let commenting = new Comments(postcomment);
       commenting.save();
       console.log(email, "Membuat komentar");
       res.send(commenting);
+      })
     })
   });
+
+//api notif Comment
+router.post("/notif/comment",(req, res) => {
+  let email = req.body.email
+    Comments.count({ email_post: email, seen: 1,email: { $ne: email }}, (err,notif) => {
+      res.send(""+notif)
+    })
+})
+
+//api notif seen comment
+router.put("/notif/comment/seen", (req, res) => {
+  let email = req.body.email;
+  Comments.update({ email_post: email }, { $set: { seen: 0 } }, { multi: true }, (err, sukses) => {
+    res.send(sukses);
+  });
+});
+
+//api notif Comment Notice
+router.post("/notif/comment/notice",(req, res) => {
+  let email = req.body.email
+    Comments.find({ email_post: email,email: { $ne: email }}, (err,notif) => {
+      res.send(notif)
+    })
+})
 
 // api user posting
 router.post("/posting", upload.single('fotocontent'), (req, res) => {
