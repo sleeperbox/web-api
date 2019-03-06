@@ -5,6 +5,9 @@ const CommentSchema = new Schema({
   id_posts: {
     type: String
   },
+  email_post: {
+    type: String
+  },
   email: {
     type: String
   },
@@ -28,7 +31,11 @@ const CommentSchema = new Schema({
   },
   total_thanks: {
     type: Number
+  },
+  seen: {
+    type: Number
   }
+
 })
 
 const Comment = mongoose.model('Comment', CommentSchema)
