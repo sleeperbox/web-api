@@ -384,10 +384,9 @@ router.post("/posting/profile", (req, res) => {
 //api posting menurut tag
 router.post("/posting/tag", (req, res) => {
   let tag = req.body.tag;
-  Posting.find({ tags: tag }, (err, posting) => {
-    res.send(posting);
-    console.log(tag, "melihat posting di profile");
-  });
+  Posting.find({ tags: tag }).sort({_id: -1}).exec(function(err,posting){
+    res.send(posting)
+  })
 });
 
 //api posting menurut tag
@@ -465,9 +464,9 @@ router.post("/posting/home/riddles", (req, res) => {
 
 router.post("/posting/people", (req, res) => {
   let username = req.body.username;
-  Posting.find({ username: username }, (err, posting) => {
-    res.send(posting);
-  });
+  Posting.find({username: username}).sort({_id: -1}).exec(function(err,posting){
+    res.send(posting)
+  })
 });
 
 module.exports = router;
