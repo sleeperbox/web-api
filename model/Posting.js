@@ -29,6 +29,9 @@ const PostingSchema = new Schema({
   thanks : {
     type: Number
   },
+  comment : {
+    type: Number
+  },
   tags : {
     type : String
   },
