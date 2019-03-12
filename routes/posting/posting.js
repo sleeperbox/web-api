@@ -381,6 +381,31 @@ router.post("/posting/profile", (req, res) => {
   })
 });
 
+//api update posting
+router.post("/posting/update", (req, res) => {
+  let id = req.body.id;
+  let content = req.body.content;
+  let tags = req.body.tags;
+  let kode_post = req.body.kode_post
+      if(kode_post == 0){
+              Posting.update({ _id: id }, { $set: {content: content, tags: tags, fotocontent: null}}, {new : true}, function() {
+                console.log("Update foto");
+              });
+      }else{
+      Posting.update({ _id: id }, { $set: {content: content, tags: tags}}, {new : true}, function() {
+        console.log("Update");
+      });
+    }
+});
+
+//api detail posting for update
+router.post("/posting/detail", (req, res) => {
+  let id = req.body._id;
+  Posting.findOne({ _id: id }, (err,posting) => {
+    res.send(posting)
+  })
+});
+
 //api posting menurut tag
 router.post("/posting/tag", (req, res) => {
   let tag = req.body.tag;
