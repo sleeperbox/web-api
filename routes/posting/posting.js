@@ -87,6 +87,7 @@ router.post("/posts/comments", (req, res) => {
       let total_posts = user.total_posts;
       let total_friends = user.total_friends;
       let total_thanks = user.total_thanks;
+      let komen = user_post.comment;
 
       let postcomment = {
         id_posts: id,
@@ -101,9 +102,13 @@ router.post("/posts/comments", (req, res) => {
         total_thanks: total_thanks,
         seen: 1
       };
-
       let commenting = new Comments(postcomment);
       commenting.save();
+      
+      let total_comment = komen + 1;
+      Posting.findOneAndUpdate({ id_posts: id }, { $set: { comment: total_comment } },{upsert: true}, (err, kom) => {
+        console.log(kom);
+      });
       console.log(email, "Membuat komentar");
       res.send(commenting);
       })
@@ -172,6 +177,7 @@ router.post("/posting", upload.single('fotocontent'), (req, res) => {
         jam: jam,
         menit: menit,
         thanks: thanks,
+        comment: 0,
         tags: tags,
         status: "publish",
         foto: foto
@@ -200,6 +206,7 @@ router.post("/posting", upload.single('fotocontent'), (req, res) => {
         jam: jam,
         menit: menit,
         thanks: thanks,
+        comment: 0,
         tags: tags,
         status: "publish",
         foto: foto
