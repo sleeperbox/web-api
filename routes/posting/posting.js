@@ -115,6 +115,23 @@ router.post("/posts/comments", (req, res) => {
     })
   });
 
+//api Delete Comment
+router.delete("/comment/delete", (req, res) => {
+  let email = req.body.email;
+  let id = req.body._id;
+  let postid = req.body.id_posts;
+  Comments.deleteOne({ email: email, _id: id }, () => {
+    Posting.findOne({ email : email }, (err, hasil) => {
+      let komen = hasil.comment;
+      let total_comment = komen - 1;
+      Posting.findOneAndUpdate({ id_posts: postid }, { $set: { comment: total_comment } }, (err, result) => {
+        console.log(result)
+      });
+    });
+  });
+});
+
+
 //api notif Comment
 router.post("/notif/comment",(req, res) => {
   let email = req.body.email
