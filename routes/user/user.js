@@ -134,22 +134,24 @@ router.post("/register", (req, res) => {
   ranking.save();
 
   let name = first_name + " " + last_name
-
-  let pesan = {
-    kode_chat: "bot",
-    username_user1: "Way Official",
-    name_user1: "Way Official",
-    username_user2: username,
-    name_user2: name,
-    message: "Welcome! Enjoy Your Experience on WAY! Application",
-    date: join_date,
-    status: "Send"
-  };
-  var message = new ListMessage(pesan);
-  message.save();
-  var message_bot = new Message(pesan);
-  message_bot.save();
-  console.log(rank)
+  User.count({}, (err,user) => {
+    let kode = user + 1
+    let pesan = {
+      kode_chat: kode,
+      username_user1: "Way",
+      name_user1: "Way Official",
+      username_user2: username,
+      name_user2: name,
+      message: "Welcome! Enjoy Your Experience on WAY! Application",
+      date: join_date,
+      status: "Send"
+    };
+    var message = new ListMessage(pesan);
+    message.save();
+    var message_bot = new Message(pesan);
+    message_bot.save();
+    console.log(rank)
+  })
 });
 
 //api Upadate User
