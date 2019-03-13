@@ -383,6 +383,7 @@ router.put("/posting/thanks/post/user", (req, res) => {
 router.delete("/posting/delete", (req, res) => {
   let email = req.body.email;
   let id = req.body._id;
+  let postid = req.body.id_posts
   Posting.deleteOne({ email: email, _id: id }, () => {
     User.findOne({ email : email }, (err, hasil) => {
       let thanks = hasil.total_posts;
@@ -390,7 +391,11 @@ router.delete("/posting/delete", (req, res) => {
       User.findOneAndUpdate({ email: email }, { $set: { total_posts: count_thanks } }, { new: true }, (err, result) => {
         console.log("added", result)
       });
-    });
+    }).then(() => {
+      Comments.remove({ id_posts: postid, email: email }, (err, result) => {
+        console.log("ngetest", result)
+      });
+    })
   });
 });
 
