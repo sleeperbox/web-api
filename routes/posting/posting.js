@@ -76,6 +76,10 @@ router.post("/comments", (req, res) => {
 //posting comment
 router.post("/posts/comments", (req, res) => {
   let username = req.body.username;
+  let tanggal = new Date();
+  let date = tanggal.toDateString();
+  let jam = tanggal.getHours();
+  let menit = tanggal.getMinutes();
   User.findOne({ username: username }, (err, user) => {
     let id = req.body.id_posts;
     Posting.findOne({id_posts: id}, (err, user_post) => {
@@ -100,7 +104,10 @@ router.post("/posts/comments", (req, res) => {
         total_posts: total_posts,
         total_friends: total_friends,
         total_thanks: total_thanks,
-        seen: 1
+        seen: 1,
+        date: date,
+        jam: jam,
+        menit: menit,
       };
       let commenting = new Comments(postcomment);
       commenting.save();

@@ -34,6 +34,15 @@ const CommentSchema = new Schema({
   },
   seen: {
     type: Number
+  },
+  date : {
+    type: String
+  },
+  jam : {
+    type: String
+  },
+  menit : {
+    type: String
   }
 
 })
