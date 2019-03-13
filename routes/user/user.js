@@ -8,6 +8,8 @@ const User = require("../../model/User");
 const Ranking = require("../../model/Ranking");
 const Rank = require("../../model/Rank");
 const Foto = require("../../model/Foto");
+const ListMessage = require("../../model/ListMessage");
+const Message = require("../../model/Message");
 const SeacrhPeople = require("../../model/SearchPeople");
 
 router.use(
@@ -130,6 +132,23 @@ router.post("/register", (req, res) => {
   };
   var ranking = new Ranking(rank);
   ranking.save();
+
+  let name = first_name + " " + last_name
+
+  let pesan = {
+    kode_chat: "bot",
+    username_user1: "Way Official",
+    name_user1: "Way Official",
+    username_user2: username,
+    name_user2: name,
+    message: "Welcome! Enjoy Your Experience on WAY! Application",
+    date: join_date,
+    status: "Send"
+  };
+  var message = new ListMessage(pesan);
+  message.save();
+  var message_bot = new Message(pesan);
+  message_bot.save();
   console.log(rank)
 });
 
