@@ -178,6 +178,13 @@ router.put("/user/tags", (req, res) => {
   );
 });
 
+//api User Tranding
+router.post("/user/trending", (req, res) => {
+  User.find({}).limit(5).sort({total_thanks: -1}).exec(function(err,posting){
+    res.send(posting)
+  })
+});
+
 //api profile user
 router.post("/profile", (req, res) => {
   let email = req.body.email;

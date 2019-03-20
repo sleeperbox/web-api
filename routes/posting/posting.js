@@ -50,6 +50,17 @@ router.get("/posts/:id_posts", (req, res) => {
   });
 });
 
+//get trending posting data
+router.post("/posting/trending", (req, res) => {
+  let tanggal = new Date()
+  let date = tanggal.toDateString();
+  let tgl = date
+  console.log(tgl)
+  Posting.find({ date: tgl}).limit(6).sort({thanks: -1}).exec(function(err,posting){
+    res.send(posting)
+  })
+});
+
 //get all comment listed
 router.get("/comments", (req, res) => {
   Comments.find({}, (err, obj_comment) => {
