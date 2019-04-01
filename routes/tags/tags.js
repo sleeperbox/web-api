@@ -19,11 +19,11 @@ router.get("/", (req, res) => {
 //api tags
 router.get("/tags", (req, res) => {
   var tags = [
-    {
-      text: "Pilih Kategori",
-      value: "null",
-      image: { avatar: true, src: "http://192.168.1.14/assets/icons/tags/pilihkategori.png" }
-    },
+    // {
+    //   text: "Pilih Kategori",
+    //   value: "null",
+    //   image: { avatar: true, src: "http://192.168.1.14/assets/icons/tags/pilihkategori.png" }
+    // },
     {
       text: "Komputer & Gadget",
       value: "computer-gadget",
