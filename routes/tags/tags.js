@@ -20,11 +20,6 @@ router.get("/", (req, res) => {
 router.get("/tags", (req, res) => {
   var tags = [
     {
-      text: "Pilih Kategori",
-      value: "null",
-      image: { avatar: true, src: "http://localhost:3000/src/web-api/public/icon/kategori.png" }
-    },
-    {
       text: "Komputer & Gadget",
       value: "computer-gadget",
       image: { avatar: true, src: "http://localhost:3000/src/web-api/public/icon/komp.png" }
