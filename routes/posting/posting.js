@@ -6,6 +6,9 @@ const Posting = require("../../model/Posting");
 const User = require("../../model/User");
 const Thank = require("../../model/Thanks");
 const Comments = require("../../model/Comment");
+const multer = require("multer");
+const upload = multer({dest: '/public'});
+const fs = require("fs");
 
 router.use(
   bodyParser.urlencoded({
@@ -47,6 +50,17 @@ router.get("/posts/:id_posts", (req, res) => {
   });
 });
 
+//get trending posting data
+router.post("/posting/trending", (req, res) => {
+  let tanggal = new Date()
+  let date = tanggal.toDateString();
+  let tgl = date
+  console.log(tgl)
+  Posting.find({ date: tgl}).limit(6).sort({thanks: -1}).exec(function(err,posting){
+    res.send(posting)
+  })
+});
+
 //get all comment listed
 router.get("/comments", (req, res) => {
   Comments.find({}, (err, obj_comment) => {
@@ -73,19 +87,26 @@ router.post("/comments", (req, res) => {
 //posting comment
 router.post("/posts/comments", (req, res) => {
   let username = req.body.username;
+  let tanggal = new Date();
+  let date = tanggal.toDateString();
+  let jam = tanggal.getHours();
+  let menit = tanggal.getMinutes();
   User.findOne({ username: username }, (err, user) => {
-
     let id = req.body.id_posts;
-    let email = req.body.email;
-    let comment = req.body.comment;
+    Posting.findOne({id_posts: id}, (err, user_post) => {
+      let email_post = user_post.email
+      let email = req.body.email;
+      let comment = req.body.comment;
     
-    let foto = user.foto;
-    let total_posts = user.total_posts;
-    let total_friends = user.total_friends;
-    let total_thanks = user.total_thanks;
+      let foto = user.foto;
+      let total_posts = user.total_posts;
+      let total_friends = user.total_friends;
+      let total_thanks = user.total_thanks;
+      let komen = user_post.comment;
 
       let postcomment = {
         id_posts: id,
+        email_post: email_post,
         email: email,
         username: username,
         comment: comment,
@@ -93,22 +114,73 @@ router.post("/posts/comments", (req, res) => {
         foto: foto,
         total_posts: total_posts,
         total_friends: total_friends,
-        total_thanks: total_thanks
+        total_thanks: total_thanks,
+        seen: 1,
+        date: date,
+        jam: jam,
+        menit: menit,
       };
-
       let commenting = new Comments(postcomment);
       commenting.save();
+      
+      let total_comment = komen + 1;
+      Posting.findOneAndUpdate({ id_posts: id }, { $set: { comment: total_comment } },{upsert: true}, (err, kom) => {
+        console.log(kom);
+      });
       console.log(email, "Membuat komentar");
       res.send(commenting);
+      })
     })
   });
 
+//api Delete Comment
+router.delete("/comment/delete", (req, res) => {
+  let email = req.body.email;
+  let id = req.body._id;
+  let postid = req.body.id_posts;
+  Comments.deleteOne({ email: email, _id: id }, () => {
+    Posting.findOne({ id_posts: postid, email : email }, (err, hasil) => {
+      let komen = hasil.comment;
+      let total_comment = komen - 1;
+      Posting.findOneAndUpdate({ id_posts: postid }, { $set: { comment: total_comment } }, (err, coment) => {
+        console.log(coment)
+      });
+    });
+  });
+});
+
+
+//api notif Comment
+router.post("/notif/comment",(req, res) => {
+  let email = req.body.email
+    Comments.count({ email_post: email, seen: 1,email: { $ne: email }}, (err,notif) => {
+      res.send(""+notif)
+    })
+})
+
+//api notif seen comment
+router.put("/notif/comment/seen", (req, res) => {
+  let email = req.body.email;
+  Comments.update({ email_post: email }, { $set: { seen: 0 } }, { multi: true }, (err, sukses) => {
+    res.send(sukses);
+  });
+});
+
+//api notif Comment Notice
+router.post("/notif/comment/notice",(req, res) => {
+  let email = req.body.email
+    Comments.find({ email_post: email,email: { $ne: email }}, (err,notif) => {
+      res.send(notif)
+    })
+})
+
 // api user posting
-router.post("/posting", (req, res) => {
+router.post("/posting", upload.single('fotocontent'), (req, res) => {
   let email = req.body.email;
   let content = req.body.content;
   let thanks = 0;
   let tags = req.body.tags;
+  let kode_post = req.body.kode_post
   let tanggal = new Date();
   let date = tanggal.toDateString();
   let jam = tanggal.getHours();
@@ -120,6 +192,43 @@ router.post("/posting", (req, res) => {
       let username = user.username;
       let posts = user.total_posts;
       let total_post;
+      if(kode_post == 1){
+        let fotocontent = req.file.originalname
+        var file = __dirname + "/../../public/posting/foto/" + fotocontent;
+        fs.readFile(req.file.path, function (err, data) {
+          fs.writeFile(file, data, function (err) {
+            if(err){
+              res.send(err)
+            }else{
+              posts === 0 ? (total_post = 1) : (total_post = posts + 1);
+      let id_post = id + 1;
+      let post = {
+        id_posts: id_post,
+        email: email,
+        username: username,
+        content: content,
+        fotocontent: fotocontent,
+        date: date,
+        jam: jam,
+        menit: menit,
+        thanks: thanks,
+        comment: 0,
+        tags: tags,
+        status: "publish",
+        foto: foto
+      }
+      let posting = new Posting(post);
+      posting.save();
+      console.log(email, "Membuat Postingan baru");
+      res.send(posting);
+
+      User.findOneAndUpdate({ email: email }, { $set: { total_posts: total_post } }, (err, posts) => {
+        console.log(posts);
+      });
+            }
+          });
+        });
+      }else{
       posts === 0 ? (total_post = 1) : (total_post = posts + 1);
       let id_post = id + 1;
       let post = {
@@ -127,10 +236,12 @@ router.post("/posting", (req, res) => {
         email: email,
         username: username,
         content: content,
+        fotocontent: null,
         date: date,
         jam: jam,
         menit: menit,
         thanks: thanks,
+        comment: 0,
         tags: tags,
         status: "publish",
         foto: foto
@@ -143,7 +254,8 @@ router.post("/posting", (req, res) => {
       User.findOneAndUpdate({ email: email }, { $set: { total_posts: total_post } }, (err, posts) => {
         console.log(posts);
       });
-    });
+    }
+  });
   });
 });
 
@@ -282,6 +394,7 @@ router.put("/posting/thanks/post/user", (req, res) => {
 router.delete("/posting/delete", (req, res) => {
   let email = req.body.email;
   let id = req.body._id;
+  let postid = req.body.id_posts
   Posting.deleteOne({ email: email, _id: id }, () => {
     User.findOne({ email : email }, (err, hasil) => {
       let thanks = hasil.total_posts;
@@ -289,7 +402,11 @@ router.delete("/posting/delete", (req, res) => {
       User.findOneAndUpdate({ email: email }, { $set: { total_posts: count_thanks } }, { new: true }, (err, result) => {
         console.log("added", result)
       });
-    });
+    }).then(() => {
+      Comments.remove({ id_posts: postid, email: email }, (err, result) => {
+        console.log("ngetest", result)
+      });
+    })
   });
 });
 
@@ -306,19 +423,42 @@ router.get("/posting/thank", (req, res) => {
 //api view posting di profile
 router.post("/posting/profile", (req, res) => {
   let email = req.body.email;
-  Posting.find({ email: email }, (err, posting) => {
-    res.send(posting);
-    console.log(email, "melihat posting di profile");
-  });
+  Posting.find({ email: email }).sort({_id: -1}).exec(function(err,posting){
+    res.send(posting)
+  })
+});
+
+//api update posting
+router.post("/posting/update", (req, res) => {
+  let id = req.body.id;
+  let content = req.body.content;
+  let tags = req.body.tags;
+  let kode_post = req.body.kode_post
+      if(kode_post == 0){
+              Posting.update({ _id: id }, { $set: {content: content, tags: tags, fotocontent: null}}, {new : true}, function() {
+                console.log("Update foto");
+              });
+      }else{
+      Posting.update({ _id: id }, { $set: {content: content, tags: tags}}, {new : true}, function() {
+        console.log("Update");
+      });
+    }
+});
+
+//api detail posting for update
+router.post("/posting/detail", (req, res) => {
+  let id = req.body._id;
+  Posting.findOne({ _id: id }, (err,posting) => {
+    res.send(posting)
+  })
 });
 
 //api posting menurut tag
 router.post("/posting/tag", (req, res) => {
   let tag = req.body.tag;
-  Posting.find({ tags: tag }, (err, posting) => {
-    res.send(posting);
-    console.log(tag, "melihat posting di profile");
-  });
+  Posting.find({ tags: tag }).sort({_id: -1}).exec(function(err,posting){
+    res.send(posting)
+  })
 });
 
 //api posting menurut tag
@@ -396,9 +536,9 @@ router.post("/posting/home/riddles", (req, res) => {
 
 router.post("/posting/people", (req, res) => {
   let username = req.body.username;
-  Posting.find({ username: username }, (err, posting) => {
-    res.send(posting);
-  });
+  Posting.find({username: username}).sort({_id: -1}).exec(function(err,posting){
+    res.send(posting)
+  })
 });
 
 module.exports = router;
