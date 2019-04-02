@@ -20,14 +20,11 @@ router.get("/", (req, res) => {
 router.get("/tags", (req, res) => {
   var tags = [
     {
-<<<<<<< HEAD
       text: "Pilih Kategori",
       value: "null",
       image: { avatar: true, src: "http://192.168.100.18/src/web-api/public/icon/kategori.png" }
     },
-    {
-=======
->>>>>>> a9e59505b9a3beeb15a54070526f616e71cf6b9c
+    { 
       text: "Komputer & Gadget",
       value: "computer-gadget",
       image: { avatar: true, src: "http://192.168.100.18/src/web-api/public/icon/komp.png" }
