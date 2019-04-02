@@ -42,10 +42,22 @@ router.post('/upload/avatar', upload.single('avatar'), (req, res) => {
                     Foto.findOne({ email: email}, (err,user) => {
                         let avatar_lama = user.avatar
                         if( avatar_lama == "default profil 1.png" || avatar_lama == "default profil 2.png" ||avatar_lama == "default profil 3.png" || avatar_lama == "default profil 4.png" || avatar_lama == "default profil 5.png" || avatar_lama == "default profil 6.png" || avatar_lama == "default profil 7.png" || avatar_lama == "default profil 8.png" ){
-                            console.log("Mengganti Foto Profil")
+                        let email_user = user.email
+                        Foto.findOneAndUpdate({ email: email_user }, { $set: { avatar: avatar } }, function() {
+                           res.send('ok')
+                        }).then(() => {
+                            User.findOne({email: email}, (err, mine) => {
+                            let username = mine.username
+                            let fotos = mine.foto
+                            Comment.updateMany({username: username}, {$set: {foto: fotos}}, function(err, comments) {
+                                Posting.updateMany({username: username}, {$set: {foto: fotos}}, function(err, hasil) {
+                                    console.log('foto koment & posting ganti: ', hasil)
+                                    })
+                                })
+                            })
+                        })
                         }else{
                         fs.unlink(__dirname + '/../../public/avatar/' + avatar_lama)}
-                        fs.unlink(__dirname + '/../../public/avatar/' + avatar_lama)
                     }).then( (user) => {
                         let email_user = user.email
                         Foto.findOneAndUpdate({ email: email_user }, { $set: { avatar: avatar } }, function() {
