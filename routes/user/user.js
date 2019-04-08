@@ -106,8 +106,8 @@ router.post("/register", (req, res) => {
       if (mail === email || name === username) {
         var statuskode = 1;
         res.send("" + statuskode);
-      }
-      var users = new User(akun);
+      }else{
+        var users = new User(akun);
       users.save();
       let foto_avatar = {
         email: email,
@@ -117,6 +117,7 @@ router.post("/register", (req, res) => {
     foto.save()
       console.log("User Baru Telah di Daftarkan");
       res.send(akun);
+      }
     } else {
       let mail = user.email;
       let name = user.username;
