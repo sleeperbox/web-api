@@ -470,6 +470,13 @@ router.post("/posting/tag", (req, res) => {
   });
 });
 
+router.post("/posting/tag/limit", (req, res) => {
+  let tag = req.body.tag;
+  Posting.find({ tags: tag }).limit(3).sort({_id: -1}).exec(function(err,posting){
+    res.send(posting);
+  });
+});
+
 //api posting Home Other
 router.post("/posting/home/other", (req, res) => {
   let tag = "other"
