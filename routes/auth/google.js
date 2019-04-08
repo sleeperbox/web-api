@@ -14,11 +14,11 @@ router.use(cors());
 
 /* GET Google Authentication API. */
 router.get(
-    "/auth/google",
+    "/api/auth/google",
     passport.authenticate("google", { scope: ["profile", "email"] })
 );
 router.get(
-    "http://192.168.100.18:8080/auth/google/callback",
+    "/auth/google/callback",
     passport.authenticate("google", { failureRedirect: "/", session: false }),
     function(req, res) {
         var token = req.user.token;
