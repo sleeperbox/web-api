@@ -102,7 +102,7 @@ router.post("/register", (req, res) => {
   User.findOne({ email: email }, (er, user) => {
     if (!user) {
       User.findOne({ username: username }, (err, userss) => {
-      if (!userss) {
+      if (userss) {
         var statuskode = 1;
         res.send("" + statuskode);
       }else{
