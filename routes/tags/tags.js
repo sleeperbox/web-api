@@ -19,11 +19,6 @@ router.get("/", (req, res) => {
 //api tags
 router.get("/tags", (req, res) => {
   var tags = [
-    {
-      text: "Pilih Kategori",
-      value: "null",
-      image: { avatar: true, src: "http://192.168.100.18/src/web-api/public/icon/kategori.png" }
-    },
     { 
       text: "Komputer & Gadget",
       value: "computer-gadget",
