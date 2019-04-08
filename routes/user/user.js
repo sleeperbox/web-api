@@ -101,24 +101,25 @@ router.post("/register", (req, res) => {
   };
   User.findOne({ email: email }, (er, user) => {
     if (!user) {
-      let mail = user.email;
-      let name = user.username;
-      if (mail === email || name === username) {
+      User.findOne({ username: username }, (err, userss) => {
+        let name = userss.username;
+      if (name === username) {
         var statuskode = 1;
         res.send("" + statuskode);
       }else{
         var users = new User(akun);
-      users.save();
-      let foto_avatar = {
+        users.save();
+        let foto_avatar = {
         email: email,
         avatar: PP
-    }
-    var foto = new Foto(foto_avatar)
-    foto.save()
-      console.log("User Baru Telah di Daftarkan");
-      res.send(akun);
       }
-    } else {
+      var foto = new Foto(foto_avatar)
+      foto.save()
+        console.log("User Baru Telah di Daftarkan");
+        res.send(akun);
+      }
+      })
+    }else {
       let mail = user.email;
       let name = user.username;
       if (mail === email || name === username) {
