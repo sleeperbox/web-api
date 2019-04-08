@@ -18,11 +18,11 @@ router.get(
     passport.authenticate("google", { scope: ["profile", "email"] })
 );
 router.get(
-    "/auth/google/callback",
+    "http://192.168.100.18:8080/auth/google/callback",
     passport.authenticate("google", { failureRedirect: "/", session: false }),
     function(req, res) {
         var token = req.user.token;
-        res.redirect("http://192.168.100.18/#/login?token=" + token);
+        res.redirect("/#/login?token=" + token);
         res.send(token)
     }
 );
