@@ -42,6 +42,13 @@ router.get("/posts", (req, res) => {
   });
 });
 
+router.post("/posting/tag/limit", (req, res) => {
+  let tag = req.body.tag;
+  Posting.find({ tags: tag }).limit(3).sort({_id: -1}).exec(function(err,posting){
+    res.send(posting);
+  });
+});
+
 //get posting data
 router.get("/posts/:id_posts", (req, res) => {
   var id_post = req.params.id_posts
@@ -467,6 +474,13 @@ router.post("/posting/tag", (req, res) => {
   Posting.find({ tags: tag }, (err, posting) => {
     res.send(posting);
     console.log(tag, "melihat posting di profile");
+  });
+});
+
+router.post("/posting/tag/limit", (req, res) => {
+  let tag = req.body.tag;
+  Posting.find({ tags: tag }).limit(3).sort({_id: -1}).exec(function(err,posting){
+    res.send(posting);
   });
 });
 
