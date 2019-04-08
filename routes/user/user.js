@@ -101,6 +101,12 @@ router.post("/register", (req, res) => {
   };
   User.findOne({ email: email }, (er, user) => {
     if (!user) {
+      let mail = user.email;
+      let name = user.username;
+      if (mail === email || name === username) {
+        var statuskode = 1;
+        res.send("" + statuskode);
+      }
       var users = new User(akun);
       users.save();
       let foto_avatar = {
@@ -114,9 +120,9 @@ router.post("/register", (req, res) => {
     } else {
       let mail = user.email;
       let name = user.username;
-      if (mail == email || name == username) {
-        var statuskode = 1;
-        res.send("" + statuskode);
+      if (mail === email || name === username) {
+        var statuskodes = 1;
+        res.send("" + statuskodes);
       }
     }
   });
