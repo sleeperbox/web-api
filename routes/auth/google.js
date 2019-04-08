@@ -14,7 +14,7 @@ router.use(cors());
 
 /* GET Google Authentication API. */
 router.get(
-    "/api/auth/google",
+    "/auth/google",
     passport.authenticate("google", { scope: ["profile", "email"] })
 );
 router.get(
