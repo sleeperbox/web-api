@@ -102,8 +102,7 @@ router.post("/register", (req, res) => {
   User.findOne({ email: email }, (er, user) => {
     if (!user) {
       User.findOne({ username: username }, (err, userss) => {
-        let name = userss.username;
-      if (name === username) {
+      if (!userss) {
         var statuskode = 1;
         res.send("" + statuskode);
       }else{
