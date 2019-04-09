@@ -30,7 +30,7 @@ router.post('/upload/avatar', upload.single('avatar'), (req, res) => {
         console.log("Tidak Jadi Ganti Foto Profil")
     }else{
         let avatar = req.file.originalname
-        var file = __dirname + "/../../public/avatar/" + avatar;
+        var file = "http://192.168.100.18/src/web-api/public/avatar/" + avatar;
         fs.readFile( req.file.path, function (err, data) {
             if(err){
                 console.log(err)
@@ -46,6 +46,9 @@ router.post('/upload/avatar', upload.single('avatar'), (req, res) => {
                 Foto.count({email: email}, (err,user) => {
                     if(user == 1){
                         Foto.findOne({ email: email}, (err,user) => {
+                            if(err){
+                                console.log("foto Error")
+                            }
                             let avatar_lama = user.avatar
                             if( avatar_lama == "default profil 1.png" || avatar_lama == "default profil 2.png" ||avatar_lama == "default profil 3.png" || avatar_lama == "default profil 4.png" || avatar_lama == "default profil 5.png" || avatar_lama == "default profil 6.png" || avatar_lama == "default profil 7.png" || avatar_lama == "default profil 8.png" ){
                             let email_user = user.email
@@ -63,7 +66,7 @@ router.post('/upload/avatar', upload.single('avatar'), (req, res) => {
                                 })
                             })
                             }else{
-                            fs.unlink(__dirname + '/../../public/avatar/' + avatar_lama)}
+                            fs.unlink("http://192.168.100.18/src/web-api/public/avatar/" + avatar_lama)}
                         }).then( (user) => {
                             let email_user = user.email
                             Foto.findOneAndUpdate({ email: email_user }, { $set: { avatar: avatar } }, function() {
