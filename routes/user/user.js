@@ -143,6 +143,9 @@ router.post("/register", (req, res) => {
 
   let name = first_name + " " + last_name
   User.count({}, (err,user) => {
+    if(err){
+      console.log(err)
+    }else{
     let kode = user + 1
     let pesan = {
       kode_chat: kode,
@@ -159,6 +162,7 @@ router.post("/register", (req, res) => {
     var message_bot = new Message(pesan);
     message_bot.save();
     console.log(rank)
+    }
   })
 });
 
@@ -250,7 +254,10 @@ router.post("/register/phone", (req, res) => {
 
   let name = first_name + " " + last_name
   User.count({}, (err,user) => {
-    let kode = user + 1
+    if(err){
+      console.log(err)
+    }else{
+      let kode = user + 1
     let pesan = {
       kode_chat: kode,
       username_user1: "Way",
@@ -266,6 +273,7 @@ router.post("/register/phone", (req, res) => {
     var message_bot = new Message(pesan);
     message_bot.save();
     console.log(rank)
+    }
   })
 });
 
@@ -295,7 +303,11 @@ router.put("/user/tags", (req, res) => {
 //api User Tranding
 router.post("/user/trending", (req, res) => {
   User.find({}).limit(5).sort({total_thanks: -1}).exec(function(err,posting){
-    res.send(posting)
+    if(err){
+      console.log(err)
+    }else{
+      res.send(posting)
+    }
   })
 });
 
@@ -303,7 +315,10 @@ router.post("/user/trending", (req, res) => {
 router.post("/profile", (req, res) => {
   let email = req.body.email;
   User.findOne({ email: email }, (err, profile) => {
-    console.log(email, "Sedang melihat profile sendiri");
+    if(err){
+      console.log(err)
+    }
+    console.log(email, " Sedang melihat profile sendiri");
     res.send(profile);
   });
 });
@@ -312,6 +327,9 @@ router.post("/profile", (req, res) => {
 router.post("/user", (req, res) => {
   let email = req.body.email;
   User.findOne({ email: email }, (err, obj_user) => {
+    if(err){
+      console.log(err)
+    }
     res.send(obj_user);
   });
 });
@@ -343,6 +361,9 @@ router.put("/user/ubahpassword", function(req, res) {
   const salt = bcrypt.genSaltSync(10);
   let password_baru = bcrypt.hashSync(req.body.password_baru, salt);
   User.findOne({ email: email }, (err, user) => {
+    if(err){
+      console.log(err)
+    }
     var cekpassword = bcrypt.compareSync(password_lama, user.password);
     if (cekpassword === true) {
       User.findOneAndUpdate({ email: email }, { $set: { password: password_baru } }, () => {
@@ -362,21 +383,32 @@ router.post("/user/rank", function(req, res) {
   let tgl = date.toDateString();
   let email = req.body.email
   Ranking.find().sort({total_score: -1}).exec(function(err,a){
+    if(err){
+      console.log(err)
+    }
     Rank.findOne({email : email}, (err, tg) => {
       if(!tg){
         Rank.deleteMany({}, () => {
             Ranking.count({}, (err, count) => {
-            for(var i = 0; i < count; i++){
-              var ranking_user = {
-                email : a[i].email,
-                rank : i,
-                tgl : tgl
+            if(err){
+              console.log(err)
+            }else{
+              for(var i = 0; i < count; i++){
+                var ranking_user = {
+                  email : a[i].email,
+                  rank : i,
+                  tgl : tgl
+                }
+                var b = new Rank(ranking_user)
+                b.save()
               }
-              var b = new Rank(ranking_user)
-              b.save()
             }
             Rank.find({ email : email}, (aww,rank_user) =>{
-            res.send(rank_user)
+            if(aww){
+              console.log(aww)
+            }else{
+              res.send(rank_user)
+            }
             })
           })
         })
@@ -387,7 +419,10 @@ router.post("/user/rank", function(req, res) {
       }else{
         Rank.deleteMany({}, () => {
           Ranking.count({}, (err, count) => {
-          for(var i = 0; i < count; i++){
+          if(err){
+            console.log(err)
+          }else{
+            for(var i = 0; i < count; i++){
             var ranking_user = {
               email : a[i].email,
               rank : i,
@@ -399,7 +434,8 @@ router.post("/user/rank", function(req, res) {
           Rank.find({ email : email}, (aww,rank_user) =>{
           res.send(rank_user)
           })
-        })
+        }
+      })
       })
       }
     })
