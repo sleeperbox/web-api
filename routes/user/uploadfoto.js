@@ -53,7 +53,7 @@ router.post('/upload/avatar', upload.single('avatar'), (req, res) => {
                             if( avatar_lama == "default profil 1.png" || avatar_lama == "default profil 2.png" ||avatar_lama == "default profil 3.png" || avatar_lama == "default profil 4.png" || avatar_lama == "default profil 5.png" || avatar_lama == "default profil 6.png" || avatar_lama == "default profil 7.png" || avatar_lama == "default profil 8.png" ){
                             let email_user = user.email
                             Foto.findOneAndUpdate({ email: email_user }, { $set: { avatar: avatar } }, function() {
-                               res.send('ok')
+                               console.log('Update Schema Foto')
                             }).then(() => {
                                 User.findOne({email: email}, (err, mine) => {
                                 let username = mine.username
@@ -70,7 +70,7 @@ router.post('/upload/avatar', upload.single('avatar'), (req, res) => {
                         }).then( (user) => {
                             let email_user = user.email
                             Foto.findOneAndUpdate({ email: email_user }, { $set: { avatar: avatar } }, function() {
-                               res.send('ok')
+                               console.log('Update Schema Foto')
                             })
                         }).then(() => {
                             User.findOne({email: email}, (err, mine) => {
@@ -95,7 +95,7 @@ router.post('/upload/avatar', upload.single('avatar'), (req, res) => {
                         var foto = new Foto(foto_avatar)
                         foto.save()
                         .then(() => {
-                            res.send('Mengganti foto avatar')
+                            console.log('Mengganti foto avatar')
                         })
                     }
                 })
