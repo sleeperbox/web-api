@@ -65,7 +65,7 @@ router.post('/upload/avatar', upload.single('avatar'), (req, res) => {
                                 })
                             })
                             }else{
-                            fs.unlink(__dirname + "/../../public/posting/foto/" + avatar_lama)}
+                            fs.unlink(__dirname + "/../../public/avatar/" + avatar_lama)}
                         }).then( (user) => {
                             let email_user = user.email
                             Foto.findOneAndUpdate({ email: email_user }, { $set: { avatar: avatar } }, function() {
