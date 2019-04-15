@@ -64,7 +64,10 @@ router.post('/upload/avatar', upload.single('avatar'), (req, res) => {
                                        })
                                    })
                                    }else{
-                                   fs.unlink( "http://192.168.100.18/src/web-api/public/avatar/" + avatar_lama +'.jpg')}
+                                        fs.unlink( "http://192.168.100.18/src/web-api/public/avatar/" +         avatar_lama +'.jpg', function () {
+                                            console.log( avatar_lama , 'Telah di Hapus ')
+                                        })
+                                    }
                                }).then( (user) => {
                                    let email_user = user.email
                                    Foto.findOneAndUpdate({ email: email_user }, { $set: { avatar: avatar } }, function() {
