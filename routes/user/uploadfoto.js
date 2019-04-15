@@ -5,7 +5,6 @@ const cors = require("cors");
 const multer = require("multer");
 const upload = multer({dest: '/public'});
 const fs = require("fs");
-const path = require("path");
 const Foto = require("../../model/Foto");
 const User = require("../../model/User");
 const Comment = require("../../model/Comment"); 
@@ -32,21 +31,11 @@ router.post('/upload/avatar', upload.single('avatar'), (req, res) => {
         let avatar = req.file.filename+'.jpg' 
         var file = "http://192.168.100.18/src/web-api/public/avatar/" + avatar;
         fs.readFile( req.file.path, function (err, data) {
-            if(err){
-                console.log(err)
-            }else{
-                fs.writeFile(file, data, function () {
-                    if( err )  {
-                       res.send(err)
-                    }else{
-                        User.findOneAndUpdate({ email: email }, { $set: { foto: avatar } }, function() {  })
-           
-                        Foto.count({email: email}, (err,user) => {
+            fs.writeFile(file, data, function () {
+                User.findOneAndUpdate({ email: email }, { $set: { foto: avatar } }, function() {  })
+                    Foto.count({email: email}, (err,user) => {
                            if(user == 1){
                                Foto.findOne({ email: email}, (err,user) => {
-                                   if(err){
-                                       console.log("foto Error")
-                                   }
                                    let avatar_lama = user.avatar
                                    if( avatar_lama == "default profil 1.png" || avatar_lama == "default profil 2.png" ||avatar_lama == "default profil 3.png" || avatar_lama == "default profil 4.png" || avatar_lama == "default profil 5.png" || avatar_lama == "default profil 6.png" || avatar_lama == "default profil 7.png" || avatar_lama == "default profil 8.png" ){
                                    let email_user = user.email
@@ -100,11 +89,9 @@ router.post('/upload/avatar', upload.single('avatar'), (req, res) => {
                                })
                            }
                        })
-                    }
+                    });
                 });
             }
-        });
-    }
 });
 
 
