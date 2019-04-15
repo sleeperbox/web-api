@@ -28,70 +28,80 @@ router.post('/upload/avatar', upload.single('avatar'), (req, res) => {
     if(!req.file){
         console.log("Tidak Jadi Ganti Foto Profil")
     }else{
-        let avatar = req.file.filename+'.jpg' 
+        let avatar = req.file.originalname
         var file = "http://192.168.100.18/src/web-api/public/avatar/" + avatar;
         fs.readFile( req.file.path, function (err, data) {
-            fs.writeFile(file, data, function () {
-                User.findOneAndUpdate({ email: email }, { $set: { foto: avatar } }, function() {  })
-                    Foto.count({email: email}, (err,user) => {
-                           if(user == 1){
-                               Foto.findOne({ email: email}, (err,user) => {
-                                   let avatar_lama = user.avatar
-                                   if( avatar_lama == "default profil 1.png" || avatar_lama == "default profil 2.png" ||avatar_lama == "default profil 3.png" || avatar_lama == "default profil 4.png" || avatar_lama == "default profil 5.png" || avatar_lama == "default profil 6.png" || avatar_lama == "default profil 7.png" || avatar_lama == "default profil 8.png" ){
-                                   let email_user = user.email
-                                   Foto.findOneAndUpdate({ email: email_user }, { $set: { avatar: avatar } }, function() {
-                                      res.send('ok')
-                                   }).then(() => {
-                                       User.findOne({email: email}, (err, mine) => {
-                                       let username = mine.username
-                                       let fotos = mine.foto
-                                       Comment.updateMany({username: username}, {$set: {foto: fotos}}, function(err, comments) {
-                                           Posting.updateMany({username: username}, {$set: {foto: fotos}}, function(err, hasil) {
-                                               console.log('foto koment & posting ganti: ', hasil)
-                                               })
-                                           })
-                                       })
-                                   })
-                                   }else{
-                                        fs.unlink( "http://192.168.100.18/src/web-api/public/avatar/" +         avatar_lama, function () {
-                                            console.log( avatar_lama , 'Telah di Hapus ')
-                                        })
-                                    }
-                               }).then( (user) => {
-                                   let email_user = user.email
-                                   Foto.findOneAndUpdate({ email: email_user }, { $set: { avatar: avatar } }, function() {
-                                      console.log(email_user , 'Mengganti Foto Avatar')
-                                   })
-                               }).then(() => {
-                                   User.findOne({email: email}, (err, mine) => {
-                                   if(err){
-                                       console.log(err)
-                                   }else{
-                                       let username = mine.username
-                                   let fotos = mine.foto
-                                   Comment.updateMany({username: username}, {$set: {foto: fotos}}, function(err, comments) {
-                                       Posting.updateMany({username: username}, {$set: {foto: fotos}}, function(err, hasil) {
-                                           console.log('foto koment & posting ganti: ', hasil)
-                                           })
-                                       })
-                                   }
-                                   })
-                               })
-                           }else{
-                               let foto_avatar = {
-                                   email: email,
-                                   avatar: avatar
-                               }
-                               var foto = new Foto(foto_avatar)
-                               foto.save()
-                               .then(() => {
-                                   console.log(foto_avatar)
-                               })
-                           }
-                       })
-                    });
-                });
+            if(err){
+                console.log(err)
             }
+            fs.writeFile(file, data, function (err) {
+             if( err ){
+                res.send(err)
+             }else{
+                      
+                
+                User.findOneAndUpdate({ email: email }, { $set: { foto: avatar } }, function() {  })
+    
+                Foto.count({email: email}, (err,user) => {
+                    if(user == 1){
+                        Foto.findOne({ email: email}, (err,user) => {
+                            if(err){
+                                console.log("foto Error")
+                            }
+                            let avatar_lama = user.avatar
+                            if( avatar_lama == "default profil 1.png" || avatar_lama == "default profil 2.png" ||avatar_lama == "default profil 3.png" || avatar_lama == "default profil 4.png" || avatar_lama == "default profil 5.png" || avatar_lama == "default profil 6.png" || avatar_lama == "default profil 7.png" || avatar_lama == "default profil 8.png" ){
+                            let email_user = user.email
+                            Foto.findOneAndUpdate({ email: email_user }, { $set: { avatar: avatar } }, function() {
+                               res.send('ok')
+                            }).then(() => {
+                                User.findOne({email: email}, (err, mine) => {
+                                let username = mine.username
+                                let fotos = mine.foto
+                                Comment.updateMany({username: username}, {$set: {foto: fotos}}, function(err, comments) {
+                                    Posting.updateMany({username: username}, {$set: {foto: fotos}}, function(err, hasil) {
+                                        console.log('foto koment & posting ganti: ', hasil)
+                                        })
+                                    })
+                                })
+                            })
+                            }else{
+                            fs.unlink("http://192.168.100.18/src/web-api/public/avatar/" + avatar_lama)}
+                        }).then( (user) => {
+                            let email_user = user.email
+                            Foto.findOneAndUpdate({ email: email_user }, { $set: { avatar: avatar } }, function() {
+                               res.send('ok')
+                            })
+                        }).then(() => {
+                            User.findOne({email: email}, (err, mine) => {
+                            if(err){
+                                console.log(err)
+                            }else{
+                                let username = mine.username
+                            let fotos = mine.foto
+                            Comment.updateMany({username: username}, {$set: {foto: fotos}}, function(err, comments) {
+                                Posting.updateMany({username: username}, {$set: {foto: fotos}}, function(err, hasil) {
+                                    console.log('foto koment & posting ganti: ', hasil)
+                                    })
+                                })
+                            }
+                            })
+                        })
+                    }else{
+                        let foto_avatar = {
+                            email: email,
+                            avatar: avatar
+                        }
+                        var foto = new Foto(foto_avatar)
+                        foto.save()
+                        .then(() => {
+                            console.log(foto_avatar)
+                        })
+                    }
+                })
+              }
+            });
+        });
+    }
 });
 
 
