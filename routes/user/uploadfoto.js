@@ -69,7 +69,7 @@ router.post('/upload/avatar', upload.single('avatar'), (req, res) => {
                         }).then( (user) => {
                             let email_user = user.email
                             Foto.findOneAndUpdate({ email: email_user }, { $set: { avatar: avatar } }, function() {
-                               res.send('ok')
+                               console.log('Menganti avatar')
                             })
                         }).then(() => {
                             User.findOne({email: email}, (err, mine) => {
