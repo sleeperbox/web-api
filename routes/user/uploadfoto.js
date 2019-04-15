@@ -94,7 +94,7 @@ router.post('/upload/avatar', upload.single('avatar'), (req, res) => {
                         var foto = new Foto(foto_avatar)
                         foto.save()
                         .then(() => {
-                            console.log(foto_avatar)
+                            res.send(foto_avatar)
                         })
                     }
                 })
