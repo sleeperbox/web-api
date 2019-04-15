@@ -29,8 +29,8 @@ router.post('/upload/avatar', upload.single('avatar'), (req, res) => {
     if(!req.file){
         console.log("Tidak Jadi Ganti Foto Profil")
     }else{
-        let avatar = req.file.filename
-        var file = "http://192.168.100.18/src/web-api/public/avatar/" + avatar +'.jpg';
+        let avatar = req.file.filename+'.jpg' 
+        var file = "http://192.168.100.18/src/web-api/public/avatar/" + avatar;
         fs.readFile( req.file.path, function (err, data) {
             if(err){
                 console.log(err)
@@ -64,7 +64,7 @@ router.post('/upload/avatar', upload.single('avatar'), (req, res) => {
                                        })
                                    })
                                    }else{
-                                        fs.unlink( "http://192.168.100.18/src/web-api/public/avatar/" +         avatar_lama +'.jpg', function () {
+                                        fs.unlink( "http://192.168.100.18/src/web-api/public/avatar/" +         avatar_lama, function () {
                                             console.log( avatar_lama , 'Telah di Hapus ')
                                         })
                                     }
