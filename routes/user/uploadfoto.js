@@ -29,7 +29,7 @@ router.post('/upload/avatar', upload.single('avatar'), (req, res) => {
         console.log("Tidak Jadi Ganti Foto Profil")
     }else{
         let avatar = req.file.originalname
-        var file = "http://192.168.100.18/src/web-api/public/avatar/" + avatar;
+        var file = __dirname + "/../../public/avatar/" + avatar;
         fs.readFile( req.file.path, function (err, data) {
             if(err){
                 console.log(err)
@@ -65,7 +65,7 @@ router.post('/upload/avatar', upload.single('avatar'), (req, res) => {
                                 })
                             })
                             }else{
-                            fs.unlink("http://192.168.100.18/src/web-api/public/avatar/" + avatar_lama)}
+                            fs.unlink(__dirname + "/../../public/posting/foto/" + avatar_lama)}
                         }).then( (user) => {
                             let email_user = user.email
                             Foto.findOneAndUpdate({ email: email_user }, { $set: { avatar: avatar } }, function() {
