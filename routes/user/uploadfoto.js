@@ -46,7 +46,8 @@ router.post('/upload/avatar', upload.single('avatar'), (req, res) => {
                     if(user == 1){
                         Foto.findOne({ email: email}, (err,user) => {
                             if(err){
-                                console.log("foto Error")
+                                res.write('Mengganti avatar')
+                                res.end()
                             }
                             let avatar_lama = user.avatar
                             if( avatar_lama == "default profil 1.png" || avatar_lama == "default profil 2.png" ||avatar_lama == "default profil 3.png" || avatar_lama == "default profil 4.png" || avatar_lama == "default profil 5.png" || avatar_lama == "default profil 6.png" || avatar_lama == "default profil 7.png" || avatar_lama == "default profil 8.png" ){
