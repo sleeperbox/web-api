@@ -256,7 +256,7 @@ router.post("/posting", upload.single('fotocontent'), (req, res) => {
       let posts = user.total_posts;
       let total_post;
       if(kode_post == 1){
-        let fotocontent = req.file.originalname
+        let fotocontent = req.file.filename+'.jpg'
         var file = __dirname + "/../../public/posting/foto/" + fotocontent;
         fs.readFile(req.file.path, function (err, data) {
           fs.writeFile(file, data, function (err) {
