@@ -2,13 +2,23 @@ const express = require("express");
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const mongoose = require("mongoose");
 const passport = require("passport");
-
-mongoose.connect("mongodb://localhost:27017/way");
-mongoose.Promise = global.Promise;
+const Client = require('pg').Pool;
+const client = new Client({
+  user: 'postgres',
+  host: 'localhost',
+  database: 'Way',
+  password: 'way',
+  port: 5432,
+})
 
 const app = express();
+
+app.get("/postgres", (req, res) => {
+  client.connect()
+  .then( () => console.log("Connect Postgres"))
+  .catch( e => console.log(e))
+});
 
  // at header
 app.use(passport.initialize());
