@@ -20,27 +20,27 @@ router.get("/", (req, res) => {
 router.get("/tags", (req, res) => {
   var tags = [
     { 
-      text: "Komputer & Gadget",
+      text: "Computer & Gadget",
       value: "computer-gadget",
       image: { avatar: true, src: "http://192.168.100.18/src/web-api/public/icon/komp.png" }
     },
     {
-      text: "Keluarga & Asmara",
+      text: "Family & Love",
       value: "family-love",
       image: { avatar: true, src: "http://192.168.100.18/src/web-api/public/icon/family.png" }
     },
     {
-      text: "Fakta & Rumor",
+      text: "Fact & Rumour",
       value: "fact-rumour",
       image: { avatar: true, src: "http://192.168.100.18/src/web-api/public/icon/fr.png" }
     },
     {
-      text: "Bisnis & Pekerjaan",
+      text: "Business & Work",
       value: "business-work",
       image: { avatar: true, src: "http://192.168.100.18/src/web-api/public/icon/bisnis.png" }
     },
     {
-      text: "Fashion & Gaya Hidup",
+      text: "Fashion & Lifestyle",
       value: "fashion-lifestyle",
       image: { avatar: true, src: "http://192.168.100.18/src/web-api/public/icon/fashion.png" }
     },
@@ -55,7 +55,7 @@ router.get("/tags", (req, res) => {
       image: { avatar: true, src: "http://192.168.100.18/src/web-api/public/icon/riddle.png" }
     },
     {
-      text: "Lainya",
+      text: "Other",
       value: "other",
       image: { avatar: true, src: "http://192.168.100.18/src/web-api/public/icon/other.png" }
     }
