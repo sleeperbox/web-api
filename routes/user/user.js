@@ -4,8 +4,6 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
 const randtoken = require("rand-token");
-const Ranking = require("../../model/Ranking");
-const Rank = require("../../model/Rank");
 const Client = require('pg').Pool;
 const client = new Client({
   user: 'postgres',
@@ -33,7 +31,7 @@ router.post("/login", (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
   client.connect()
-  .then( () => client.query('SELECT * FROM "way"."User" WHERE email =$1',[email], (err, result) => {
+  .then( () => client.query('SELECT * FROM "way"."User" WHERE email =$1 OR username=$1 OR phone_number=$1',[email], (err, result) => {
     if(err){
       var statuslogin = 1;
       res.send("" + statuslogin);
@@ -343,72 +341,70 @@ router.post("/user/rank", function(req, res) {
   let date = new Date();
   let tgl = date.toDateString();
   let email = req.body.email
-  Ranking.find().sort({total_score: -1}).exec(function(err,a){
+  client.connect()
+  .then( () => client.query(' SELECT * FROM "way"."Rank" WHERE email=$1 AND tgl=$2',[email,tgl], (err,result) => {
     if(err){
       console.log(err)
-    }
-    Rank.findOne({email : email}, (err, tg) => {
-      if(!tg){
-        Rank.deleteMany({}, () => {
-            Ranking.count({}, (err, count) => {
-            if(err){
-              console.log(err)
-            }else{
-              for(var i = 0; i < count; i++){
-                var ranking_user = {
-                  email : a[i].email,
-                  rank : i,
-                  tgl : tgl
-                }
-                var b = new Rank(ranking_user)
-                b.save()
-              }
-            }
-            Rank.find({ email : email}, (aww,rank_user) =>{
-            if(aww){
-              console.log(aww)
-            }else{
-              res.send(rank_user)
-            }
-            })
-          })
-        })
-      }else if(tg.tgl == tgl){
-        Rank.find({ email : email}, (aww,rank_user) =>{
-          res.send(rank_user)
-        })
-      }else{
-        Rank.deleteMany({}, () => {
-          Ranking.count({}, (err, count) => {
+    }else{
+      if( result.rowCount === 0){
+        client.query(' SELECT * FROM "way"."Ranking" ORDER BY total_score DESC ', (err,result) => {
           if(err){
             console.log(err)
           }else{
+            let count = result.rowCount
             for(var i = 0; i < count; i++){
-            var ranking_user = {
-              email : a[i].email,
-              rank : i,
-              tgl : tgl
+              let mail = result.rows[i].email
+              let rank = i
+              let tanggal = tgl
+              client.query(' INSERT INTO "way"."Rank" (email,rank,tgl) VALUES ($1,$2,$3)',[mail,rank,tanggal], (err) => {
+                if(err){
+                  console.log(err)
+                }
+              })
             }
-            var b = new Rank(ranking_user)
-            b.save()
+            client.query(' SELECT * FROM "way"."Rank" WHERE email=$1', [email], (err,result) => {
+              if(err){
+                console.log(err)
+              }else{
+                res.send(result.rows)
+              }
+            })
           }
-          Rank.find({ email : email}, (aww,rank_user) =>{
-          res.send(rank_user)
+        })
+      }else{
+        let tgl_rank = result.rows[0].tgl
+        if(tgl_rank !== tgl){
+          client.query(' SELECT * FROM "way"."Ranking" ORDER BY total_score DESC ', (err,result) => {
+            if(err){
+              console.log("err")
+            }else{
+              let count = result.rowCount
+              for(var i = 0; i < count; i++){
+                let mail = result.rows[i].email
+                let rank = i
+                let tanggal = tgl
+                client.query(' INSERT INTO "way"."Rank" (email,rank,tgl) VALUES ($1,$2,$3)',[mail,rank,tanggal], (err) => {
+                  if(err){
+                    console.log(err)
+                  }
+                })
+              }
+              client.query(' SELECT * FROM "way"."Rank" WHERE email=$1', [email], (err,result) => {
+                if(err){
+                  console.log(err)
+                }else{
+                  res.send(result.rows)
+                }
+              })
+            }
           })
+        }else{
+          res.send(result.rows)
         }
-      })
-      })
       }
-    })
-  });
-});
-
-//api hapus semua rank
-router.delete("/rank", function(req, res) {
-  Rank.remove(function(err) {
-    if (err) res.json(err);
-    res.send("removed");
-  });
+    }
+  }))
+  .catch(e => console.log(e))
 });
 
 module.exports = router

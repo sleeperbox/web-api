@@ -2,9 +2,14 @@ const express = require("express");
 const router = express.Router();
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const Ranking = require("../../model/Ranking");
-const User = require("../../model/User");
-
+const Client = require('pg').Pool;
+const client = new Client({
+  user: 'postgres',
+  host: 'localhost',
+  database: 'Way',
+  password: 'way',
+  port: 5432,
+})
 router.use(
   bodyParser.urlencoded({
     extended: false
@@ -21,21 +26,22 @@ router.get("/", (req, res) => {
 //api lihat rank
 router.post("/rank", (req, res) => {
     let email = req.body.email
-    User.findOne({ email: email}, (err,user) => {
+    client.connect()
+    .then( () => client.query(' SELECT * FROM "way"."User" WHERE email=$1',[email], (err,result) => {
       if(err){
         console.log(err)
       }else{
-        let score = user.total_friends + user.total_thanks
-        Ranking.findOneAndUpdate({ email: email}, { $set: { total_score : score}}, { new: true }, (err,rank) => {
+        let score = result.rows[0].total_friends + result.rows[0].total_thanks
+        client.query(' UPDATE "way"."Ranking" SET total_score= $1 WHERE email=$2',[score,email], (err) => {
           if(err){
             console.log(err)
           }else{
-            Ranking.find().sort({total_score: -1})
-            console.log(rank)
+            console.log("hore")
           }
         })
       }
-    })
+    }))
+    .catch( e => console.log(e))
   });
 
 module.exports = router;

@@ -26,20 +26,14 @@ require("./config/passport");
 
 app.use("/api", require("./routes/auth/google"));
 app.use("/api", require("./routes/user/user"));
+app.use("/api", require("./routes/user/rank"));
+app.use("/api", require("./routes/user/uploadfoto"));
 app.use("/api", require("./routes/friend/friend"));
 app.use("/api", require("./routes/tags/tags"));
 app.use("/api", require("./routes/ClearData/clear"));
 app.use("/api", require("./routes/posting/posting"));
 app.use("/api", require("./routes/user/uploadfoto"));
 app.use("/api", require("./routes/message/Message"));
-app.use("/api/profile", require("./routes/profile/buttom-menu"));
-app.use("/api/profile", require("./routes/profile/more-category"));
-app.use("/api/profile", require("./routes/profile/picture"));
-app.use("/api/profile", require("./routes/profile/activity"));
-app.use("/api/profile", require("./routes/profile/notification"));
-app.use("/api/profile", require("./routes/profile/friends"));
-app.use("/api/profile", require("./routes/profile/setting"));
-app.use("/api/profile", require("./routes/profile/message"));
 
 app.use(morgan("combine"));
 app.use(cors());
