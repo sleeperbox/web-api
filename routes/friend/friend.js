@@ -2,6 +2,14 @@ const express = require("express");
 const router = express.Router();
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const Client = require('pg').Pool;
+const client = new Client({
+  user: 'postgres',
+  host: 'localhost',
+  database: 'Way',
+  password: 'way',
+  port: 5432,
+})
 const Friend = require("../../model/Friend");
 const User = require("../../model/User");
 const Foto = require("../../model/Foto");
@@ -17,12 +25,21 @@ router.use(cors());
 //api search people
 router.post("/friend", (req, res) => {
   let emails = req.body.email;
-  User.find({ email: { $ne: emails }}, (err, user) => {
-    Foto.find({ email: { $ne: emails } }, (err, foto) => {
-      res.send({user: user, foto: foto});
-    });
-  });
-  
+  client.connect()
+    .then( () => client.query('SELECT * FROM "way"."User" WHERE email != $1',[emails], (err,user) =>{
+    if(err){
+      console.log(err)
+    }else{
+      client.query(' SELECT * FROM "way"."Foto" WHERE email != $1',[emails], (err,foto) =>{
+        if(err){
+          console.log(err)
+        }else{
+          res.send({user: user.rows, foto: foto.rows});
+        }
+      })
+    }
+    }))
+    .catch(e => console.log(e))
 });
 
 //api search people
@@ -30,202 +47,279 @@ router.post("/search", (req, res) => {
   var username = req.body.username;
   var way = "Way"
   var official = "Official"
-  User.find({ $or: [{ username: {$regex:username,$ne:way}},{ first_name: {$regex:username,$ne:way}},{ last_name: {$regex:username,$ne:official}}]}, (err,user) => {
-    res.send(user)
-  })
+  client.connect()
+    .then( () => client.query('SELECT * FROM "way"."User" WHERE username LIKE $1 AND username != $2 AND username != $1 OR first_name LIKE $1 AND first_name != $2 OR last_name LIKE $1 AND last_name != $3',[username + '%',way,official], (err,user) =>{
+    if(err){
+      console.log(err)
+    }else{
+      res.send(user.rows)
+    }
+    }))
+    .catch(e => console.log(e))
 });
 
 
 router.post("/people/profile", (req, res) => {
   let email = req.body;
-  User.find({ email: email }, (err, user) => {
-    res.send(user);
-  });
+  client.connect()
+    .then( () => client.query('SELECT * FROM "way"."User" WHERE email = $1',[email], (err,user) =>{
+    if(err){
+      console.log(err)
+    }else{
+      res.send(user)
+    }
+  }))
+  .catch(e => console.log(e))
 });
 
 router.post("/people/profile/get", (req, res) => {
   let request1 = req.body.username;
-  User.find({ username: request1 }, (err, user) => {
-    res.send(user);
-  });
+  client.connect()
+    .then( () => client.query('SELECT * FROM "way"."User" WHERE username = $1',[request1], (err,user) =>{
+    if(err){
+      console.log(err)
+    }else{
+      res.send(user)
+    }
+  }))
+  .catch(e => console.log(e))
 });
 
 router.post("/follow/user/data", (req, res) => {
   let username = req.body.username;
-  User.find({ username }, (err, result) => {
-    res.send(result);
-  });
+  client.connect()
+    .then( () => client.query('SELECT * FROM "way"."User" WHERE username = $1',[username], (err,user) =>{
+    if(err){
+      console.log(err)
+    }else{
+      res.send(user)
+    }
+  }))
+  .catch(e => console.log(e))
 });
 
 //api add friend
 router.post("/follow", (req, res) => {
   let email = req.body.email;
   let email_friend = req.body.email_friend;
-  User.findOne({ email: email}, (err, user) => {
-    let teman = {
-      email: email,
-      email_friend: email_friend,
-      username: user.username,
-      name: user.first_name + " " + user.last_name,
-      status: "followed",
-      seen: 0
-    };
-    var friend = new Friend(teman);
-  friend.save().then(teman => {
-    User.findOne({ email: email_friend }, (err, hasil) => {
-      let total_friends = hasil.total_friends;
-      let countfriend = total_friends + 1;
-      User.findOneAndUpdate(
-        { email: email_friend },
-        { $set: { total_friends: countfriend } },
-        { new: true },
-        (err, result) => {
-          console.log("suskes friend" + result);
+  client.connect()
+    .then( () => client.query('SELECT * FROM "way"."User" WHERE email = $1',[email], (err,user) =>{
+    if(err){
+      console.log(err)
+    }else{
+      let username = user.rows[0].username
+      let name = user.rows[0].first_name + " " + user.rows[0].last_name
+      client.query('INSERT INTO "way"."Friend" (email,email_friend,username,name,status,seen) VALUES ($1,$2,$3,$4,$5,$6)',[email,email_friend,username,name,"followed",0], (err) => {
+        if(err){
+          console.log(err)
+        }else{
+          client.query('SELECT * FROM "way"."User" WHERE email=$1',[email_friend], (err,users) => {
+            let total_friends = users.rows[0].total_friends
+            let countfriend = total_friends + 1
+            client.query('UPDATE "way"."User" SET total_friend = $1 WHERE email=$2',[countfriend,email_friend],(err) => {
+              if(err){
+                console.log(err)
+              }
+            }) 
+          })
         }
-      );
-    });
-    res.send(teman);
-  });
-  });
+      })
+    }
+  }))
+  .catch(e => console.log(e))
 });
 
 router.post("/following/count", (req, res) => {
   let email = req.body.email;
-  Friend.findOne({ email }, (err, result) => {
-    Friend.countDocuments({ status: "followed" }, (a, counting) => {
-      res.send("" + counting);
-    });
-  });
+  client.connect()
+    .then( () => client.query('SELECT * FROM "way"."Friend" WHERE email = $1 AND status=$2',[email,"followed"], (err,user) =>{
+    if(err){
+      console.log(err)
+    }else{
+      res.send(user.rowCount)
+    }
+  }))
+  .catch(e => console.log(e))
 });
 
 router.post("/follower/count", (req, res) => {
   let email_friend = req.body.email;
-  Friend.findOne({ email_friend }, (err, result) => {
-    Friend.countDocuments({ status: "followed" }, (a, counting) => {
-      res.send("" + counting);
-    });
-  });
+  client.connect()
+    .then( () => client.query('SELECT * FROM "way"."Friend" WHERE email = $1 AND status=$2',[email_friend,"followed"], (err,user) =>{
+    if(err){
+      console.log(err)
+    }else{
+      res.send(user.rowCount)
+    }
+  }))
+  .catch(e => console.log(e))
 });
 
 router.post("/following/list", (req, res) => {
   let email = req.body.email;
-  Friend.find({ email, status: "followed" }, (err, result) => {
-    res.send(result);
-  });
+  client.connect()
+    .then( () => client.query('SELECT * FROM "way"."Friend" WHERE email = $1 AND status=$2',[email,"followed"], (err,user) =>{
+    if(err){
+      console.log(err)
+    }else{
+      res.send(user.rows)
+    }
+  }))
+  .catch(e => console.log(e))
 });
 
 router.post("/follower/list", (req, res) => {
   let email_friend = req.body.email;
-  Friend.find({ email_friend, status: "followed" }, (err, result) => {
-    res.send(result);
-  });
+  client.connect()
+    .then( () => client.query('SELECT * FROM "way"."Friend" WHERE email_friend = $1 AND status=$2',[email_friend,"followed"], (err,user) =>{
+    if(err){
+      console.log(err)
+    }else{
+      res.send(user.rows)
+    }
+  }))
+  .catch(e => console.log(e))
 });
 
 //api notif add
 router.post("/follow/notif", (req, res) => {
   let email = req.body.email;
-  Friend.find({ email_friend: email, status: "followed" }, (err, friend) => {
-    res.send(friend);
-  });
+  client.connect()
+    .then( () => client.query('SELECT * FROM "way"."Friend" WHERE email_friend = $1 AND status=$2',[email,"followed"], (err,user) =>{
+    if(err){
+      console.log(err)
+    }else{
+      res.send(user.rows)
+    }
+  }))
+  .catch(e => console.log(e))
 });
 
 router.post("/follow/notif/count", (req, res) => {
   let email = req.body.email;
-  Friend.countDocuments({ email_friend: email, status: "followed", seen: 0 }, (a, counting) => {
-    res.send("" + counting);
-  });
+  client.connect()
+    .then( () => client.query('SELECT * FROM "way"."Friend" WHERE email = $1 AND status=$2 AND seen=$3',[email,"followed",0], (err,user) =>{
+    if(err){
+      console.log(err)
+    }else{
+      res.send(user.rowCount)
+    }
+  }))
+  .catch(e => console.log(e))
 });
 
 //
 router.post("/follow/notif", (req, res) => {
   let email = req.body.email;
-  User.findOne({ email: email }, (err, user) => {
-    res.send(user);
-  });
+  client.connect()
+    .then( () => client.query('SELECT * FROM "way"."User" WHERE email = $1',[email], (err,user) =>{
+    if(err){
+      console.log(err)
+    }else{
+      res.send(user.rows)
+    }
+  }))
+  .catch(e => console.log(e))
 });
 
 router.put("/follow/notif/seen", (req, res) => {
   let email = req.body.email;
-  Friend.update({ email_friend: email }, { $set: { seen: 1 } }, { multi: true }, (err, sukses) => {
-    res.send(sukses);
-  });
+  client.connect()
+    .then( () => client.query('UPDATE "way"."Friend" SET seen=$2 WHERE email_friend = $1',[email,1], (err,user) =>{
+    if(err){
+      console.log(err)
+    }else{
+      res.send(user.rows)
+    }
+  }))
+  .catch(e => console.log(e))
 });
 
 //api get status friend
 router.post("/follow/status", (req, res) => {
   let email = req.body.email;
   let email_friend = req.body.email_friend;
-  Friend.findOne({ email: email, email_friend: email_friend }, (err, hasil) => {
-    if (hasil) {
-      res.send(hasil.status);
+  client.connect()
+    .then( () => client.query('SELECT * FROM "way"."Friend" WHERE email = $1 AND email_friend=$2',[email,email_friend], (err,user) =>{
+    if(err){
+      console.log(err)
+    }else{
+      res.send(user.rows[0].status)
     }
-  });
+  }))
+  .catch(e => console.log(e))
 });
 
 //api unfriend
 router.put("/unfollow", (req, res) => {
   let email = req.body.email;
   let email_friend = req.body.email_friend;
-  Friend.findOne({ email: email, email_friend: email_friend }, (err, hasil) => {
-    if (hasil) {
-      let status = hasil.status;
-      if (status != "follow") {
-        Friend.findOneAndUpdate(
-          { email, email_friend },
-          { $set: { status: "follow" } },
-          { new: true },
-          (err, hasil) => {
-            console.log(hasil);
-            let status = hasil.status;
-            Friend.findOneAndRemove({ email, email_friend }, (err, removed) => {
-              console.log("removed");
-            });
-            User.findOne({ email: email_friend }, (err, hasil) => {
-              let total_friends = hasil.total_friends;
-              let countfriend = total_friends - 1;
-              User.findOneAndUpdate(
-                { email: email_friend },
-                { $set: { total_friends: countfriend } },
-                { new: true },
-                (err, result) => {
-                  console.log("suskes friend" + result);
-                }
-              );
-            });
-            res.send(status);
+  client.connect()
+    .then( () => client.query('SELECT * FROM "way"."Friend" WHERE email = $1 AND email_friend=$2',[email,email_friend], (err,user) =>{
+    if(err){
+      console.log(err)
+    }else{
+      let status = user.rows[0].status
+      if( status != "follow"){
+        client.query(' UPDATE "way"."Friend" SET seen=$1 WHERE email=$2 AND email_friend=$3'["follow",email,email_friend], (err) =>{
+          if(err){
+            console.log(err)
+          }else{
+            client.query('DELETE FROM "way"."Friend" WHERE email=$1 AND email_friend=$2',[email,email_friend],(err)=>{
+              if(err){
+                console.log(err)
+              }else{
+                client.query(' Select * FROM "way"."User" WHERE email=$1',[email_friend],(err,users) => {
+                  if(err){
+                    console.log(err)
+                  }else{
+                    let total_friends = users.rows[0].total_friend
+                    let countfriend = total_friends - 1;
+                    client.query('UPDATE "way"."User" SET total_friend=$1 WHERE email=$2',[countfriend,email_friend], (err,result) => {
+                      if(err){
+                        console.log(err)
+                      }else{
+                        console.log("suskes friend" + result.rows);      
+                      }
+                    })
+                  }
+                })
+              }
+            })
           }
-        );
-      } else {
+          res.send(status)
+        })
+      }else{
         console.log("status nya berarti follow");
       }
     }
-  });
-});
-
-//bypass
-router.delete("/clearf", (req, res) => {
-  Friend.remove({}, (err, sukses) => {
-    res.send(sukses);
-  });
+  }))
+  .catch(e => console.log(e))
 });
 
 router.put("/reset", (req, res) => {
   let email = req.body.email;
-  User.findOneAndUpdate({ email }, { $set: { total_friends: 0 } }, { new: true }, (err, sukses) => {
-    res.send(sukses);
-  });
+  client.connect()
+    .then( () => client.query('UPDATE "way"."User" SET total_friends=$1 WHERE email = $2',[0,email], (err,user) =>{
+    if(err){
+      console.log(err)
+    }else{
+      res.send(user)
+    }
+  }))
+  .catch(e => console.log(e))
 });
 
 router.get("/friendcheck", (req, res) => {
-  Friend.find({}, (err, hasil) => {
-    res.send(hasil);
-  });
-});
-
-router.delete("/clearu", (req, res) => {
-  User.remove({}, (err, sukses) => {
-    res.send(sukses);
-  });
+  client.connect()
+    .then( () => client.query('SELECT * FROM "way"."Friend"', (err,user) =>{
+    if(err){
+      console.log(err)
+    }else{
+      res.send(user)
+    }
+  }))
+  .catch(e => console.log(e))
 });
 
 module.exports = router;

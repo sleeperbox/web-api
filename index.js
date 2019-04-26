@@ -30,7 +30,6 @@ app.use("/api", require("./routes/user/rank"));
 app.use("/api", require("./routes/user/uploadfoto"));
 app.use("/api", require("./routes/friend/friend"));
 app.use("/api", require("./routes/tags/tags"));
-app.use("/api", require("./routes/ClearData/clear"));
 app.use("/api", require("./routes/posting/posting"));
 app.use("/api", require("./routes/user/uploadfoto"));
 app.use("/api", require("./routes/message/Message"));
