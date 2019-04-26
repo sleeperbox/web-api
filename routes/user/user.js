@@ -4,10 +4,14 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
 const randtoken = require("rand-token");
-const User = require("../../model/User");
-const Ranking = require("../../model/Ranking");
-const Rank = require("../../model/Rank");
-const SeacrhPeople = require("../../model/SearchPeople");
+const Client = require('pg').Pool;
+const client = new Client({
+  user: 'postgres',
+  host: 'localhost',
+  database: 'Way',
+  password: 'way',
+  port: 5432,
+})
 
 router.use(
   bodyParser.urlencoded({
@@ -26,24 +30,26 @@ router.get("/", (req, res) => {
 router.post("/login", (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
-  User.findOne({ email }, function(err, user) {
-    if (user) {
-      let token = user.token;
-      let emailuser = user.email;
-      let dbpassword = user.password;
-      var cekpassword = bcrypt.compareSync(password, dbpassword);
-      if (cekpassword === true && token != "") {
-        console.log(emailuser, "Telah Login");
-        res.send(user);
-      } else {
-        var statuspassword = 1;
-        res.send("" + statuspassword);
-      }
-    } else {
+  client.connect()
+  .then( () => client.query('SELECT * FROM "way"."User" WHERE email =$1 OR username=$1 OR phone_number=$1',[email], (err, result) => {
+    if(err){
       var statuslogin = 1;
       res.send("" + statuslogin);
+      console.log(email, "tidak ada")
+    }else{
+      let dbpassword = result.rows[0].password
+      var cekpassword = bcrypt.compareSync(password, dbpassword);
+      if (cekpassword === true) {
+        console.log(email, "Telah Login");
+        res.send(result.rows);
+      }else {
+        var statuspassword = 1;
+        res.send("" + statuspassword);
+        console.log("password salah")
+      }
     }
-  });
+  }))
+  .catch( e => console.log(e))
 });
 
 //api register
@@ -52,58 +58,165 @@ router.post("/register", (req, res) => {
   let username = req.body.username;
   let first_name = req.body.first_name;
   let last_name = req.body.last_name;
+  let name = first_name + " " + last_name
   const salt = bcrypt.genSaltSync(10);
   let password = bcrypt.hashSync(req.body.password, salt);
   let token = randtoken.generate(10);
+  let noPP = Math.floor(Math.random() * Math.floor(8));
+  let PP = null;
   let auth = true;
   let date = new Date();
   let join_date = date.toDateString();
-  let akun = {
-    email: email,
-    username: username,
-    first_name: first_name,
-    last_name: last_name,
-    password: password,
-    token: token,
-    auth: auth,
-    total_posts: 0,
-    total_thaks: 0,
-    total_friends: 0,
-    awards: 0,
-    join_date: join_date,
-    total_thanks: 0,
-    tags: ["other"],
-    foto: "koala.jpg",
-  };
-  User.findOne({ email: email }, (er, user) => {
-    if (!user) {
-      var users = new User(akun);
-      users.save();
-      console.log("User Baru Telah di Daftarkan");
-      res.send(akun);
-    } else {
-      let mail = user.email;
-      let name = user.username;
-      if (mail == email || name == username) {
+
+  if( noPP == 1){
+    PP = "default profil 1.png"
+  }else if( noPP == 2){
+    PP = "default profil 2.png"
+  }else if( noPP == 3){
+    PP = "default profil 3 .png"
+  }else if( noPP == 4){
+    PP = "default profil 4.png"
+  }else if( noPP == 5){
+    PP = "default profil 5.png"
+  }else if( noPP == 6){
+    PP = "default profil 6.png"
+  }else if( noPP == 7){
+    PP = "default profil 7.png"
+  }else {
+    PP = "default profil 8.png"
+  }
+
+    client.connect()
+    .then(() => client.query('SELECT * FROM "way"."User" WHERE email='+email, (err,result) => {
+      if(err){
+        client.query('SELECT * FROM "way"."User" WHERE username='+username, (err,result) =>{
+          if(err){
+            client.query('INSERT INTO "way"."User" (email, username, first_name, last_name, password, token, auth, total_posts, total_thanks, total_friends, awards, join_date, tags, foto) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)',[email,username,first_name,last_name,password, token,auth,0,0,0,0,join_date,["other"],PP], (err, result) => {
+              if(err){
+                console.log(err)
+              }else{
+                res.status(200).json(result.rows)
+                console.log("User Baru", email)
+              }
+            })
+            client.query('INSERT INTO "way"."Foto" (email,avatar) VALUES ($1,$2)',[email,PP],(err,result) => {
+              if(err){
+                console.log(err)
+              }else{
+                console.log(result.rows)
+              }
+            })
+            client.query('INSERT INTO "way"."SearchPeople" (email, email_friend) VALUES ($1,$2)',[email,email], (err) => {
+              if(err){
+                console.log(err)
+              }
+            })
+            client.query('INSERT INTO "way"."Ranking" (email,total_score) VALUES ($1,$2)', [email,0] , (err) => {
+              if(err){
+                console.log(err)
+              }
+            })
+             client.query('INSERT INTO "way"."Message" (kode_chat, username_user1, name_user1, username_user2, name_user2, message, date, status) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)', [token, "Way", "Way Official", username, name,"Welcome! Enjoy Your Experience on WAY! Application", join_date, "Send"], (err) => {
+              if(err){
+                console.log(err)
+              }
+            })
+          }else{
+            var statuskode = 1;
+            console.log(result, "sudah digunakan")
+            res.send("" + statuskode);    
+          }
+        })
+      }else{
         var statuskode = 1;
+        console.log(result, "sudah digunakan")
         res.send("" + statuskode);
       }
-    }
-  });
-  let new_akun = {
-    email: email,
-    email_friend: email
-  };
-  var people = new SeacrhPeople(new_akun);
-  people.save();
-  
-  let rank = {
-    email: email,
-    total_score: 0
-  };
-  var ranking = new Ranking(rank);
-  ranking.save();
-  console.log(rank)
+    }))
+    .catch( e => console.log(e))
+});
+
+//api register no telepon web
+router.post("/register/phone", (req, res) => {
+  let phone_number = req.body.phone_number;
+  let username = req.body.username;
+  let first_name = req.body.first_name;
+  let last_name = req.body.last_name;
+  const salt = bcrypt.genSaltSync(10);
+  let password = bcrypt.hashSync(req.body.password, salt);
+  let token = randtoken.generate(10);
+  let noPP = Math.floor(Math.random() * Math.floor(8));
+  let PP = null;
+  let auth = true;
+  let date = new Date();
+  let join_date = date.toDateString();
+
+  if( noPP == 1){
+    PP = "default profil 1.png"
+  }else if( noPP == 2){
+    PP = "default profil 2.png"
+  }else if( noPP == 3){
+    PP = "default profil 3 .png"
+  }else if( noPP == 4){
+    PP = "default profil 4.png"
+  }else if( noPP == 5){
+    PP = "default profil 5.png"
+  }else if( noPP == 6){
+    PP = "default profil 6.png"
+  }else if( noPP == 7){
+    PP = "default profil 7.png"
+  }else {
+    PP = "default profil 8.png"
+  }
+
+  client.connect()
+    .then(() => client.query('SELECT * FROM "way"."User" WHERE email='+phone_number, (err,result) => {
+      if(err){
+        client.query('SELECT * FROM "way"."User" WHERE username='+username, (err,result) =>{
+          if(err){
+            client.query('INSERT INTO "way"."User" (email, username, first_name, last_name, password, token, auth, total_posts, total_thanks, total_friends, awards, join_date, tags, foto) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)',[phone_number,username,first_name,last_name,password, token,auth,0,0,0,0,join_date,["other"],PP], (err, result) => {
+              if(err){
+                console.log(err)
+              }else{
+                res.status(200).json(result.rows)
+                console.log("User Baru", phone_number)
+              }
+            })
+            client.query('INSERT INTO "way"."Foto" (email,avatar) VALUES ($1,$2)',[phone_number,PP],(err,result) => {
+              if(err){
+                console.log(err)
+              }else{
+                console.log(result.rows)
+              }
+            })
+            client.query('INSERT INTO "way"."SearchPeople" (email, email_friend) VALUES ($1,$2)',[phone_number,phone_number], (err) => {
+              if(err){
+                console.log(err)
+              }
+            })
+            client.query('INSERT INTO "way"."Ranking" (email,total_score) VALUES ($1,$2)', [phone_number,0] , (err) => {
+              if(err){
+                console.log(err)
+              }
+            })
+             client.query('INSERT INTO "way"."Message" (kode_chat, username_user1, name_user1, username_user2, name_user2, message, date, status) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)', [token, "Way", "Way Official", username, name,"Welcome! Enjoy Your Experience on WAY! Application", join_date, "Send"], (err) => {
+              if(err){
+                console.log(err)
+              }
+            })
+          }else{
+            var statuskode = 1;
+            console.log(result, "sudah digunakan")
+            res.send("" + statuskode);    
+          }
+        })
+      }else{
+        var statuskode = 1;
+        console.log(result, "sudah digunakan")
+        res.send("" + statuskode);
+      }
+    }))
+    .catch( e => console.log(e))
 });
 
 //api Upadate User
@@ -114,56 +227,86 @@ router.put("/user/tags", (req, res) => {
   let phone_number = req.body.phone_number;
   let gender = req.body.gender;
   let tags = [req.body.tags];
-  User.findOneAndUpdate(
-    { email: email },
-    {
-      $set: { tags: [tags] },
-      first_name: first_name,
-      last_name: last_name,
-      phone_number: phone_number,
-      jenis_kelamin: gender
-    },
-    function() {
-      res.send("Tags telah ditambah");
+  client.connect()
+  .then( () => client.query('UPDATE "way"."User" SET first_name = $1, last_name = $2, phone_number = $3, jenis_kelamin = $4, tags = $5 WHERE email=$6',[first_name,last_name,phone_number,gender, tags, email], (err, result) => {
+    if(err){
+      console.log(err)
+    }else{
+      console.log( email, "Update Profile")
+      res.send(result.rows)
     }
-  );
+  }))
+  .catch( e => console.log(e))
+});
+
+//api User Tranding
+router.post("/user/trending", (req, res) => {
+  client.connect()
+  .then( () => client.query('SELECT * FROM "way"."User" ORDER BY total_thanks DESC limit 5', (err, result) => {
+    if(err){
+      console.log(err)
+    }else{
+      res.send(result.rows)
+    }
+  }))
+  .catch( e => console.log(e))
 });
 
 //api profile user
 router.post("/profile", (req, res) => {
   let email = req.body.email;
-  User.findOne({ email: email }, (err, profile) => {
-    console.log(email, "Sedang melihat profile sendiri");
-    res.send(profile);
-  });
+  client.connect()
+  .then( () => client.query('SELECT * FROM "way"."User" WHERE email=$1',[email], (err, result) => {
+    if(err){
+      console.log(err)
+    }else{
+      res.send(result.rows)
+    }
+  }))
+  .catch( e => console.log(e))
 });
 
 //api get user
 router.post("/user", (req, res) => {
   let email = req.body.email;
-  User.findOne({ email: email }, (err, obj_user) => {
-    res.send(obj_user);
-  });
+  client.connect()
+  .then( () => client.query('SELECT * FROM "way"."User" WHERE email=$1',[email], (err, result) => {
+    if(err){
+      console.log(err)
+    }else{
+      res.send(result.rows)
+    }
+  }))
+  .catch( e => console.log(e))
 });
 
 //api get all user
 router.get("/user", (req, res) => {
-  User.find({}, (err, obj_user) => {
-    var userMap = {};
-    obj_user.forEach(function(users) {
-      userMap[users._id] = users;
-    });
-    res.send(obj_user);
-  });
+  client.connect()
+  .then( () => client.query('SELECT * FROM "way"."User"', (err, result) => {
+    if(err){
+      console.log(err)
+    }else{
+      res.status(200).json(result.rows)
+      console.log(result.rows)
+    }
+  }))
+  .catch( e => console.log(e))
 });
 
 //api Hapus Akun User
 router.delete("/user/delete", function(req, res) {
   let email = req.body.email;
-  User.deleteOne({ email: email }, () => {
-    console.log("Akun ", email, " ", " Telah DiHapus");
-    res.send("User Berhasil Dihapus");
-  });
+  client.connect()
+  .then( () => client.query('DELETE FROM "way"."User" WHERE email ='+email, (err, result) => {
+    if(err){
+      console.log(err)
+    }else{
+      res.status(200).json(result.rows)
+      console.log(result.rows)
+    }
+  }))
+  .catch( e => console.log(e))
 });
 
 //api Ubah Password User
@@ -172,18 +315,25 @@ router.put("/user/ubahpassword", function(req, res) {
   let password_lama = req.body.password_lama;
   const salt = bcrypt.genSaltSync(10);
   let password_baru = bcrypt.hashSync(req.body.password_baru, salt);
-  User.findOne({ email: email }, (err, user) => {
-    var cekpassword = bcrypt.compareSync(password_lama, user.password);
-    if (cekpassword === true) {
-      User.findOneAndUpdate({ email: email }, { $set: { password: password_baru } }, () => {
-        console.log(email, " Telah Mengubah Password");
-        res.send("Password Berhasil Di Ubah");
-      });
-    } else {
-      console.log(email, "Password Lama Salah");
-      res.send("Password Lama Salah");
+  client.connect()
+  .then( () => client.query('SELECT * FROM "way"."User"', (err, result) => {
+    if(err){
+      console.log(err)
+    }else{
+      let password = result.rows[0].password
+      var cekpassword = bcrypt.compareSync(password_lama, password);
+      if(cekpassword === true){
+        client.query('UPDATE "way"."User" SET password = $1 WHERE email = $2',[password_baru,email], (err) => {
+          if(err){
+            console.log(err)
+          }else{
+            console.log(email, "Mengganti Password")
+          }
+        })
+      }
     }
-  });
+  }))
+  .catch( e => console.log(e))
 });
 
 //api Rank User
@@ -191,79 +341,70 @@ router.post("/user/rank", function(req, res) {
   let date = new Date();
   let tgl = date.toDateString();
   let email = req.body.email
-  Ranking.find().sort({total_score: -1}).exec(function(err,a){
-    Rank.findOne({email : email}, (err, tg) => {
-      if(!tg){
-        Rank.deleteMany({}, () => {
-            Ranking.count({}, (err, count) => {
+  client.connect()
+  .then( () => client.query(' SELECT * FROM "way"."Rank" WHERE email=$1 AND tgl=$2',[email,tgl], (err,result) => {
+    if(err){
+      console.log(err)
+    }else{
+      if( result.rowCount === 0){
+        client.query(' SELECT * FROM "way"."Ranking" ORDER BY total_score DESC ', (err,result) => {
+          if(err){
+            console.log(err)
+          }else{
+            let count = result.rowCount
             for(var i = 0; i < count; i++){
-              var ranking_user = {
-                email : a[i].email,
-                rank : i,
-                tgl : tgl
-              }
-              var b = new Rank(ranking_user)
-              b.save()
+              let mail = result.rows[i].email
+              let rank = i
+              let tanggal = tgl
+              client.query(' INSERT INTO "way"."Rank" (email,rank,tgl) VALUES ($1,$2,$3)',[mail,rank,tanggal], (err) => {
+                if(err){
+                  console.log(err)
+                }
+              })
             }
-            Rank.find({ email : email}, (aww,rank_user) =>{
-            res.send(rank_user)
+            client.query(' SELECT * FROM "way"."Rank" WHERE email=$1', [email], (err,result) => {
+              if(err){
+                console.log(err)
+              }else{
+                res.send(result.rows)
+              }
             })
-          })
-        })
-      }else if(tg.tgl == tgl){
-        Rank.find({ email : email}, (aww,rank_user) =>{
-          res.send(rank_user)
+          }
         })
       }else{
-        Rank.deleteMany({}, () => {
-          Ranking.count({}, (err, count) => {
-          for(var i = 0; i < count; i++){
-            var ranking_user = {
-              email : a[i].email,
-              rank : i,
-              tgl : tgl
+        let tgl_rank = result.rows[0].tgl
+        if(tgl_rank !== tgl){
+          client.query(' SELECT * FROM "way"."Ranking" ORDER BY total_score DESC ', (err,result) => {
+            if(err){
+              console.log("err")
+            }else{
+              let count = result.rowCount
+              for(var i = 0; i < count; i++){
+                let mail = result.rows[i].email
+                let rank = i
+                let tanggal = tgl
+                client.query(' INSERT INTO "way"."Rank" (email,rank,tgl) VALUES ($1,$2,$3)',[mail,rank,tanggal], (err) => {
+                  if(err){
+                    console.log(err)
+                  }
+                })
+              }
+              client.query(' SELECT * FROM "way"."Rank" WHERE email=$1', [email], (err,result) => {
+                if(err){
+                  console.log(err)
+                }else{
+                  res.send(result.rows)
+                }
+              })
             }
-            var b = new Rank(ranking_user)
-            b.save()
-          }
-          Rank.find({ email : email}, (aww,rank_user) =>{
-          res.send(rank_user)
           })
-        })
-      })
+        }else{
+          res.send(result.rows)
+        }
       }
-    })
-  });
-});
-
-router.post("/o", function(req, res) {
-  Rank.find({}, (a,s) => {
-    res.send(s)
-  })
-});
-
-//api hapus semua user
-router.delete("/clearmongo", function(req, res) {
-  User.remove(function(err) {
-    if (err) res.json(err);
-    res.send("removed");
-  });
-});
-
-//api hapus semua rank
-router.delete("/rank", function(req, res) {
-  Rank.remove(function(err) {
-    if (err) res.json(err);
-    res.send("removed");
-  });
-});
-
-router.post("/user/add", function(req, res) {
-  console.log(req.body);
-  var user = new User(req.body);
-  user.save().then(() => {
-    res.status(200).json({ user: "added successfully" });
-  });
+    }
+  }))
+  .catch(e => console.log(e))
 });
 
 module.exports = router

@@ -5,11 +5,15 @@ const cors = require("cors");
 const multer = require("multer");
 const upload = multer({dest: '/public'});
 const fs = require("fs");
-const path = require("path");
-const Foto = require("../../model/Foto");
-const User = require("../../model/User");
-const Comment = require("../../model/Comment"); 
-const Posting = require("../../model/Posting")
+const Client = require('pg').Pool;
+const client = new Client({
+  user: 'postgres',
+  host: 'localhost',
+  database: 'Way',
+  password: 'way',
+  port: 5432,
+})
+
 router.use(
   bodyParser.urlencoded({
     extended: false
@@ -26,85 +30,137 @@ router.get("/", (req, res) => {
 //api upload foto avatar
 router.post('/upload/avatar', upload.single('avatar'), (req, res) => {
     let email = req.body.email
-    let avatar = req.file.originalname
-    var file = __dirname + "/../../public/avatar/" + avatar;
-    fs.readFile( req.file.path, function (err, data) {
-        fs.writeFile(file, data, function (err) {
-         if( err ){
-            res.send(err)
-         }else{
-                  
-            
-            User.findOneAndUpdate({ email: email }, { $set: { foto: avatar } }, function() {  })
-
-            Foto.count({email: email}, (err,user) => {
-                if(user == 1){
-                    Foto.findOne({ email: email}, (err,user) => {
-                        let avatar_lama = user.avatar
-                        fs.unlink(__dirname + '/../../public/avatar/' + avatar_lama)
-                    }).then( (user) => {
-                        let email_user = user.email
-                        Foto.findOneAndUpdate({ email: email_user }, { $set: { avatar: avatar } }, function() {
-                           res.send('ok')
-                        })
-                    }).then(() => {
-                        User.findOne({email: email}, (err, mine) => {
-                        let username = mine.username
-                        let fotos = mine.foto
-                        Comment.updateMany({username: username}, {$set: {foto: fotos}}, function(err, comments) {
-                            Posting.updateMany({username: username}, {$set: {foto: fotos}}, function(err, hasil) {
-                                console.log('foto koment & posting ganti: ', hasil)
-                                })
-                            })
-                        })
-                    })
-                }else{
-                    let foto_avatar = {
-                        email: email,
-                        avatar: avatar
+    if(!req.file){
+        console.log("Tidak Jadi Ganti Foto Profil")
+    }else{
+        let avatar = req.file.filename+'.jpg'
+        var file = __dirname + "/../../public/avatar/" + avatar;
+        fs.readFile( req.file.path, function (err, data) {
+            if(err){
+                console.log(err)
+            }
+            fs.writeFile(file, data, function (err) {
+             if( err ){
+                res.send(err)
+             }else{
+                client.connect()
+                .then( () => client.query(' UPDATE "way"."User" SET foto = $1 WHERE email = $2', [avatar,email],(err) =>{
+                    if(err){
+                        console.log(err)
                     }
-                    var foto = new Foto(foto_avatar)
-                    foto.save()
-                    .then(() => {
-                        res.send('Mengganti foto avatar')
-                    })
-                }
-            })
-          }
-
-       });
-   });
+                }))
+                .then( () => client.query(' SELECT * FROM "way"."Foto" WHERE email=$1',[email], (err,result) => {
+                    if(err){
+                        console.log(err)
+                    }else{
+                        let count = result.rowCount
+                        if( count === 1){
+                            let avatar_lama = result.rows[0].avatar
+                            if( avatar_lama == "default profil 1.png" || avatar_lama == "default profil 2.png" ||avatar_lama == "default profil 3.png" || avatar_lama == "default profil 4.png" || avatar_lama == "default profil 5.png" || avatar_lama == "default profil 6.png" || avatar_lama == "default profil 7.png" || avatar_lama == "default profil 8.png"){
+                                client.query(' UPDATE "way"."Foto" SET avatar = $1 WHERE email = $2',[avatar,email], (err) => {
+                                    if(err){
+                                        console.log(err)
+                                    }else{
+                                        console.log(email, "Mengganti Foto Profile")
+                                        client.query(' SELECT * FROM "way"."User" WHERE email = $1', [email], (err, result) => {
+                                            if(err){
+                                                console.log(err)
+                                            }else{
+                                                let username = result.rows[0].username
+                                                client.query(' UPDATE "way"."Comment" SET foto=$1 WHERE username=$2',[avatar,username], (err) => {
+                                                    if(err){
+                                                        console.log(err)
+                                                    }else{
+                                                        client.query(' UPDATE "way"."Posting" SET foto=$1 WHERE username=$2',[avatar,username],(err) => {
+                                                            if(err){
+                                                                console.log(err)
+                                                            }else{
+                                                                client.query('SELECT * FROM "way"."User" WHERE email=$1',[email],(err,result) => {
+                                                                    if(err){
+                                                                        console.log(err)
+                                                                    }else{
+                                                                        res.send(result.rows)
+                                                                    }
+                                                                })
+                                                            }
+                                                        })
+                                                    }
+                                                })
+                                            }
+                                        })
+                                    }
+                                })
+                            }else{
+                                fs.unlink(__dirname + "/../../public/avatar/" + avatar_lama)
+                                client.query(' UPDATE "way"."Foto" SET avatar = $1 WHERE email = $2',[avatar,email], (err) => {
+                                    if(err){
+                                        console.log(err)
+                                    }else{
+                                        console.log(email, "Mengganti Foto Profile")
+                                        client.query(' SELECT * FROM "way"."User" WHERE email = $1', [email], (err, result) => {
+                                            if(err){
+                                                console.log(err)
+                                            }else{
+                                                let username = result.rows[0].username
+                                                client.query(' UPDATE "way"."Comment" SET foto=$1 WHERE username=$2',[avatar,username], (err) => {
+                                                    if(err){
+                                                        console.log(err)
+                                                    }else{
+                                                        client.query(' UPDATE "way"."Posting" SET foto=$1 WHERE username=$2',[avatar,username],(err) => {
+                                                            if(err){
+                                                                console.log(err)
+                                                            }else{
+                                                                client.query('SELECT * FROM "way"."User" WHERE email=$1',[email],(err,result) => {
+                                                                    if(err){
+                                                                        console.log(err)
+                                                                    }else{
+                                                                        res.send(result.rows)
+                                                                    }
+                                                                })
+                                                            }
+                                                        })
+                                                    }
+                                                })
+                                            }
+                                        })
+                                    }
+                                })
+                            }
+                        }
+                    }
+                }))
+                .catch(e => console.log(e))
+              }
+            });
+        });
+    }
 });
 
 //api menampilkan avatar user di profile
 router.post("/user/avatar", (req, res) => {
     let email = req.body.email
-    Foto.count({email: email}, (err,user) => {
-        if(user == 1){
-            Foto.findOne({email: email},(err,user) => {
-                let avatar = user.avatar
-                res.send(avatar)
-            })
+    client.connect()
+    .then( () => client.query(' SELECT * FROM "way"."Foto" WHERE email = $1', [email], (err,result) => {
+        if(err){
+            console.log(err)
         }else{
-            let avatar = 'koala.jpg'
-            res.send(avatar)
+            res.send(result.rows)
         }
-    })
+    }))
+    .catch(e => console.log(e))
 });
 
 //api menampilkan schema foto
 router.get("/foto", (req, res) => {
-    Foto.find({}, (err, obj_user) => {
-      res.send(obj_user);
-    });
+    client.connect()
+    .then( () => client.query(' SELECT * FROM "way"."Foto"'), (err,result) => {
+        if(err){
+            console.log(err)
+        }else{
+            res.send(result.rows)
+        }
+    })
+    .catch(e => console.log(e))
 });
-
-//api hapus schema foto
-router.delete("/clearfoto", function(req, res) {
-    Foto.remove(function(err) {
-      if (err) res.json(err);
-      res.send("removed");
-    });
-  });
 
 module.exports = router;

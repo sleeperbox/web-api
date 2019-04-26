@@ -2,13 +2,23 @@ const express = require("express");
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const mongoose = require("mongoose");
 const passport = require("passport");
-
-mongoose.connect("mongodb://localhost:27017/way");
-mongoose.Promise = global.Promise;
+const Client = require('pg').Pool;
+const client = new Client({
+  user: 'postgres',
+  host: 'localhost',
+  database: 'Way',
+  password: 'way',
+  port: 5432,
+})
 
 const app = express();
+
+app.get("/postgres", (req, res) => {
+  client.connect()
+  .then( () => console.log("Connect Postgres"))
+  .catch( e => console.log(e))
+});
 
  // at header
 app.use(passport.initialize());
@@ -16,20 +26,13 @@ require("./config/passport");
 
 app.use("/api", require("./routes/auth/google"));
 app.use("/api", require("./routes/user/user"));
+app.use("/api", require("./routes/user/rank"));
+app.use("/api", require("./routes/user/uploadfoto"));
 app.use("/api", require("./routes/friend/friend"));
 app.use("/api", require("./routes/tags/tags"));
-app.use("/api", require("./routes/ClearData/clear"));
 app.use("/api", require("./routes/posting/posting"));
 app.use("/api", require("./routes/user/uploadfoto"));
 app.use("/api", require("./routes/message/Message"));
-app.use("/api/profile", require("./routes/profile/buttom-menu"));
-app.use("/api/profile", require("./routes/profile/more-category"));
-app.use("/api/profile", require("./routes/profile/picture"));
-app.use("/api/profile", require("./routes/profile/activity"));
-app.use("/api/profile", require("./routes/profile/notification"));
-app.use("/api/profile", require("./routes/profile/friends"));
-app.use("/api/profile", require("./routes/profile/setting"));
-app.use("/api/profile", require("./routes/profile/message"));
 
 app.use(morgan("combine"));
 app.use(cors());
@@ -51,5 +54,5 @@ app.get("/", (req, res) => {
 });
 
 app.listen(process.env.PORT || 8080, function() {
-  console.log("starting server 8080...");
+  console.log(" Starting server 8080....")
 });
