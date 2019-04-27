@@ -5,10 +5,10 @@ const cors = require("cors");
 const passport = require("passport");
 const Client = require('pg').Pool;
 const client = new Client({
-  user: 'postgres',
+  user: 'aprizalc_sleeperbox',
   host: 'localhost',
-  database: 'Way',
-  password: 'way',
+  database: 'aprizalc_way',
+  password: 'moalmakepassword',
   port: 5432,
 })
 
