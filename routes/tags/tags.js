@@ -22,42 +22,42 @@ router.get("/tags", (req, res) => {
     { 
       text: "Computer & Gadget",
       value: "computer-gadget",
-      image: { avatar: true, src: "http://192.168.100.18/src/web-api/public/icon/komp.png" }
+      image: { avatar: true, src: "http://aprizal.com/public/icon/icon/komp.png" }
     },
     {
       text: "Family & Love",
       value: "family-love",
-      image: { avatar: true, src: "http://192.168.100.18/src/web-api/public/icon/family.png" }
+      image: { avatar: true, src: "http://aprizal.com/public/icon/icon/family.png" }
     },
     {
       text: "Fact & Rumour",
       value: "fact-rumour",
-      image: { avatar: true, src: "http://192.168.100.18/src/web-api/public/icon/fr.png" }
+      image: { avatar: true, src: "http://aprizal.com/public/icon/icon/f&r.png" }
     },
     {
       text: "Business & Work",
       value: "business-work",
-      image: { avatar: true, src: "http://192.168.100.18/src/web-api/public/icon/bisnis.png" }
+      image: { avatar: true, src: "http://aprizal.com/public/icon/icon/bisnis.png" }
     },
     {
       text: "Fashion & Lifestyle",
       value: "fashion-lifestyle",
-      image: { avatar: true, src: "http://192.168.100.18/src/web-api/public/icon/fashion.png" }
+      image: { avatar: true, src: "http://aprizal.com/public/icon/icon/fashion.png" }
     },
     {
       text: "Quotes",
       value: "quotes",
-      image: { avatar: true, src: "http://192.168.100.18/src/web-api/public/icon/quotes.png" }
+      image: { avatar: true, src: "http://aprizal.com/public/icon/icon/quotes.png" }
     },
     {
       text: "Riddles",
       value: "riddles",
-      image: { avatar: true, src: "http://192.168.100.18/src/web-api/public/icon/riddle.png" }
+      image: { avatar: true, src: "http://aprizal.com/public/icon/icon/riddle.png" }
     },
     {
       text: "Other",
       value: "other",
-      image: { avatar: true, src: "http://192.168.100.18/src/web-api/public/icon/other.png" }
+      image: { avatar: true, src: "http://aprizal.com/public/icon/icon/other.png" }
     }
   ];
   res.send(tags);
