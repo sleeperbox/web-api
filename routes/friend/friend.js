@@ -19,7 +19,7 @@ router.post("/friend", (req, res) => {
   let emails = req.body.email;
   User.find({ email: { $ne: emails }}, (err, user) => {
     Foto.find({ email: { $ne: emails } }, (err, foto) => {
-      res.send({user: user, foto: foto});
+      res.send({user: JSON.stringify(user), foto: JSON.stringify(foto)});
     });
   });
   
