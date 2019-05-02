@@ -10,13 +10,11 @@ mongoose.connect("mongodb://sleeperbox:moalmakepassword123@ds149146.mlab.com:491
 }, (err) => {
  if(err){
   console.log('not connected');
-  res.send('not connected');
  }else{
   console.log('connected');
-  res.send('connected');
  }
 });
-//mongoose.Promise = global.Promise;
+mongoose.Promise = global.Promise;
 
 const app = express();
 
