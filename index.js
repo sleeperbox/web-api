@@ -5,8 +5,18 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const passport = require("passport");
 
-mongoose.connect("mongodb://localhost:49146/way");
-mongoose.Promise = global.Promise;
+mongoose.connect("mongodb://sleeperbox:moalmakepassword123@ds149146.mlab.com:49146/way", {
+ userNewUrlParser: true
+}, (err) => {
+ if(err){
+  console.log('not connected');
+  res.send('not connected');
+ }else{
+  console.log('connected');
+  res.send('connected');
+ }
+});
+//mongoose.Promise = global.Promise;
 
 const app = express();
 
