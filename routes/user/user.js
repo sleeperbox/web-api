@@ -294,8 +294,12 @@ router.put("/user/tags", (req, res) => {
       phone_number: phone_number,
       jenis_kelamin: gender
     },
-    function() {
-      res.send("Tags telah ditambah");
+    (err,user) => {
+      if(err){
+        console.log(err)
+      }else{
+        res.send(user)
+      }
     }
   );
 });
