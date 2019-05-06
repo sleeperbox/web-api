@@ -5,7 +5,15 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const passport = require("passport");
 
-mongoose.connect("mongodb://localhost:27017/way");
+mongoose.connect("mongodb://sleeperbox:moalmakepassword123@ds149146.mlab.com:49146/way", {
+ userNewUrlParser: true
+}, (err) => {
+ if(err){
+  console.log('not connected');
+ }else{
+  console.log('connected');
+ }
+});
 mongoose.Promise = global.Promise;
 
 const app = express();
@@ -21,6 +29,7 @@ app.use("/api", require("./routes/tags/tags"));
 app.use("/api", require("./routes/ClearData/clear"));
 app.use("/api", require("./routes/posting/posting"));
 app.use("/api", require("./routes/user/uploadfoto"));
+app.use("/api", require("./routes/message/Message"));
 app.use("/api/profile", require("./routes/profile/buttom-menu"));
 app.use("/api/profile", require("./routes/profile/more-category"));
 app.use("/api/profile", require("./routes/profile/picture"));
@@ -50,5 +59,5 @@ app.get("/", (req, res) => {
 });
 
 app.listen(process.env.PORT || 8080, function() {
-  console.log("starting server 8080...");
+  console.log(" Starting server 8080....")
 });

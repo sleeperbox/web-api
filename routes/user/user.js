@@ -7,6 +7,9 @@ const randtoken = require("rand-token");
 const User = require("../../model/User");
 const Ranking = require("../../model/Ranking");
 const Rank = require("../../model/Rank");
+const Foto = require("../../model/Foto");
+const ListMessage = require("../../model/ListMessage");
+const Message = require("../../model/Message");
 const SeacrhPeople = require("../../model/SearchPeople");
 
 router.use(
@@ -26,7 +29,7 @@ router.get("/", (req, res) => {
 router.post("/login", (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
-  User.findOne({ email }, function(err, user) {
+  User.findOne({$or: [{email: email},{ username: email} ,{ phone_number: email}]}).exec(function(err, user){
     if (user) {
       let token = user.token;
       let emailuser = user.email;
@@ -55,9 +58,30 @@ router.post("/register", (req, res) => {
   const salt = bcrypt.genSaltSync(10);
   let password = bcrypt.hashSync(req.body.password, salt);
   let token = randtoken.generate(10);
+  let noPP = Math.floor(Math.random() * Math.floor(8));
+  let PP = null;
   let auth = true;
   let date = new Date();
   let join_date = date.toDateString();
+
+  if( noPP == 1){
+    PP = "default profil 1.png"
+  }else if( noPP == 2){
+    PP = "default profil 2.png"
+  }else if( noPP == 3){
+    PP = "default profil 3 .png"
+  }else if( noPP == 4){
+    PP = "default profil 4.png"
+  }else if( noPP == 5){
+    PP = "default profil 5.png"
+  }else if( noPP == 6){
+    PP = "default profil 6.png"
+  }else if( noPP == 7){
+    PP = "default profil 7.png"
+  }else {
+    PP = "default profil 8.png"
+  }
+
   let akun = {
     email: email,
     username: username,
@@ -73,20 +97,33 @@ router.post("/register", (req, res) => {
     join_date: join_date,
     total_thanks: 0,
     tags: ["other"],
-    foto: "koala.jpg",
+    foto: PP,
   };
   User.findOne({ email: email }, (er, user) => {
     if (!user) {
-      var users = new User(akun);
-      users.save();
-      console.log("User Baru Telah di Daftarkan");
-      res.send(akun);
-    } else {
-      let mail = user.email;
-      let name = user.username;
-      if (mail == email || name == username) {
+      User.findOne({ username: username }, (err, userss) => {
+      if (userss) {
         var statuskode = 1;
         res.send("" + statuskode);
+      }else{
+        var users = new User(akun);
+        users.save();
+        let foto_avatar = {
+        email: email,
+        avatar: PP
+      }
+      var foto = new Foto(foto_avatar)
+      foto.save()
+        console.log("User Baru Telah di Daftarkan");
+        res.send(akun);
+      }
+      })
+    }else {
+      let mail = user.email;
+      let name = user.username;
+      if (mail === email || name === username) {
+        var statuskodes = 1;
+        res.send("" + statuskodes);
       }
     }
   });
@@ -103,7 +140,141 @@ router.post("/register", (req, res) => {
   };
   var ranking = new Ranking(rank);
   ranking.save();
-  console.log(rank)
+
+  let name = first_name + " " + last_name
+  User.count({}, (err,user) => {
+    if(err){
+      console.log(err)
+    }else{
+    let kode = user + 1
+    let pesan = {
+      kode_chat: kode,
+      username_user1: "Way",
+      name_user1: "Way Official",
+      username_user2: username,
+      name_user2: name,
+      message: "Welcome! Enjoy Your Experience on WAY! Application",
+      date: join_date,
+      status: "Send"
+    };
+    var message = new ListMessage(pesan);
+    message.save();
+    var message_bot = new Message(pesan);
+    message_bot.save();
+    console.log(rank)
+    }
+  })
+});
+
+//api register Pake No telepon web
+router.post("/register/phone", (req, res) => {
+  let phone_number = req.body.phone_number;
+  let username = req.body.username;
+  let first_name = req.body.first_name;
+  let last_name = req.body.last_name;
+  const salt = bcrypt.genSaltSync(10);
+  let password = bcrypt.hashSync(req.body.password, salt);
+  let token = randtoken.generate(10);
+  let noPP = Math.floor(Math.random() * Math.floor(8));
+  let PP = null;
+  let auth = true;
+  let date = new Date();
+  let join_date = date.toDateString();
+
+  if( noPP == 1){
+    PP = "default profil 1.png"
+  }else if( noPP == 2){
+    PP = "default profil 2.png"
+  }else if( noPP == 3){
+    PP = "default profil 3 .png"
+  }else if( noPP == 4){
+    PP = "default profil 4.png"
+  }else if( noPP == 5){
+    PP = "default profil 5.png"
+  }else if( noPP == 6){
+    PP = "default profil 6.png"
+  }else if( noPP == 7){
+    PP = "default profil 7.png"
+  }else {
+    PP = "default profil 8.png"
+  }
+
+  let akun = {
+    email: phone_number,
+    username: username,
+    first_name: first_name,
+    last_name: last_name,
+    password: password,
+    phone_number: phone_number,
+    token: token,
+    auth: auth,
+    total_posts: 0,
+    total_thaks: 0,
+    total_friends: 0,
+    awards: 0,
+    join_date: join_date,
+    total_thanks: 0,
+    tags: ["other"],
+    foto: PP,
+  };
+  User.findOne({ email: phone_number }, (er, user) => {
+    if (!user) {
+      var users = new User(akun);
+      users.save();
+      let foto_avatar = {
+        email: phone_number,
+        avatar: PP
+    }
+    var foto = new Foto(foto_avatar)
+    foto.save()
+      console.log("User Baru Telah di Daftarkan");
+      res.send(akun);
+    } else {
+      let mail = user.email;
+      let name = user.username;
+      if (mail == phone_number || name == username) {
+        var statuskode = 1;
+        res.send("" + statuskode);
+      }
+    }
+  });
+  let new_akun = {
+    email: phone_number,
+    email_friend: phone_number
+  };
+  var people = new SeacrhPeople(new_akun);
+  people.save();
+  
+  let rank = {
+    email: phone_number,
+    total_score: 0
+  };
+  var ranking = new Ranking(rank);
+  ranking.save();
+
+  let name = first_name + " " + last_name
+  User.count({}, (err,user) => {
+    if(err){
+      console.log(err)
+    }else{
+      let kode = user + 1
+    let pesan = {
+      kode_chat: kode,
+      username_user1: "Way",
+      name_user1: "Way Official",
+      username_user2: username,
+      name_user2: name,
+      message: "Welcome! Enjoy Your Experience on WAY! Application",
+      date: join_date,
+      status: "Send"
+    };
+    var message = new ListMessage(pesan);
+    message.save();
+    var message_bot = new Message(pesan);
+    message_bot.save();
+    console.log(rank)
+    }
+  })
 });
 
 //api Upadate User
@@ -123,17 +294,35 @@ router.put("/user/tags", (req, res) => {
       phone_number: phone_number,
       jenis_kelamin: gender
     },
-    function() {
-      res.send("Tags telah ditambah");
+    (err,user) => {
+      if(err){
+        console.log(err)
+      }else{
+        res.send(user)
+      }
     }
   );
+});
+
+//api User Tranding
+router.post("/user/trending", (req, res) => {
+  User.find({}).limit(5).sort({total_thanks: -1}).exec(function(err,posting){
+    if(err){
+      console.log(err)
+    }else{
+      res.send(posting)
+    }
+  })
 });
 
 //api profile user
 router.post("/profile", (req, res) => {
   let email = req.body.email;
   User.findOne({ email: email }, (err, profile) => {
-    console.log(email, "Sedang melihat profile sendiri");
+    if(err){
+      console.log(err)
+    }
+    console.log(email, " Sedang melihat profile sendiri");
     res.send(profile);
   });
 });
@@ -142,6 +331,9 @@ router.post("/profile", (req, res) => {
 router.post("/user", (req, res) => {
   let email = req.body.email;
   User.findOne({ email: email }, (err, obj_user) => {
+    if(err){
+      console.log(err)
+    }
     res.send(obj_user);
   });
 });
@@ -173,6 +365,9 @@ router.put("/user/ubahpassword", function(req, res) {
   const salt = bcrypt.genSaltSync(10);
   let password_baru = bcrypt.hashSync(req.body.password_baru, salt);
   User.findOne({ email: email }, (err, user) => {
+    if(err){
+      console.log(err)
+    }
     var cekpassword = bcrypt.compareSync(password_lama, user.password);
     if (cekpassword === true) {
       User.findOneAndUpdate({ email: email }, { $set: { password: password_baru } }, () => {
@@ -192,21 +387,32 @@ router.post("/user/rank", function(req, res) {
   let tgl = date.toDateString();
   let email = req.body.email
   Ranking.find().sort({total_score: -1}).exec(function(err,a){
+    if(err){
+      console.log(err)
+    }
     Rank.findOne({email : email}, (err, tg) => {
       if(!tg){
         Rank.deleteMany({}, () => {
             Ranking.count({}, (err, count) => {
-            for(var i = 0; i < count; i++){
-              var ranking_user = {
-                email : a[i].email,
-                rank : i,
-                tgl : tgl
+            if(err){
+              console.log(err)
+            }else{
+              for(var i = 0; i < count; i++){
+                var ranking_user = {
+                  email : a[i].email,
+                  rank : i,
+                  tgl : tgl
+                }
+                var b = new Rank(ranking_user)
+                b.save()
               }
-              var b = new Rank(ranking_user)
-              b.save()
             }
             Rank.find({ email : email}, (aww,rank_user) =>{
-            res.send(rank_user)
+            if(aww){
+              console.log(aww)
+            }else{
+              res.send(rank_user)
+            }
             })
           })
         })
@@ -217,7 +423,10 @@ router.post("/user/rank", function(req, res) {
       }else{
         Rank.deleteMany({}, () => {
           Ranking.count({}, (err, count) => {
-          for(var i = 0; i < count; i++){
+          if(err){
+            console.log(err)
+          }else{
+            for(var i = 0; i < count; i++){
             var ranking_user = {
               email : a[i].email,
               rank : i,
@@ -229,7 +438,8 @@ router.post("/user/rank", function(req, res) {
           Rank.find({ email : email}, (aww,rank_user) =>{
           res.send(rank_user)
           })
-        })
+        }
+      })
       })
       }
     })

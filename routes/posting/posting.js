@@ -5,6 +5,10 @@ const cors = require("cors");
 const Posting = require("../../model/Posting");
 const User = require("../../model/User");
 const Thank = require("../../model/Thanks");
+const Comments = require("../../model/Comment");
+const multer = require("multer");
+const upload = multer({dest: __dirname + '/public'});
+const fs = require("fs");
 
 router.use(
   bodyParser.urlencoded({
@@ -30,20 +34,216 @@ router.delete("/clearposting", function(req, res) {
 //api get all user
 router.get("/posts", (req, res) => {
   Posting.find({}, (err, obj_user) => {
+    if(err){
+      console.log(err)
+    }else{
     var userMap = {};
     obj_user.forEach(function(users) {
       userMap[users._id] = users;
     });
     res.send(obj_user);
+    }
   });
 });
 
+router.post("/posting/tag/limit", (req, res) => {
+  let tag = req.body.tag;
+  Posting.find({ tags: tag }).limit(3).sort({_id: -1}).exec(function(err,posting){
+    if(err){
+      console.log(err)
+    }else{
+      res.send(posting)
+    }
+  });
+});
+
+//get posting data
+router.get("/posts/:id_posts", (req, res) => {
+  var id_post = req.params.id_posts
+  Posting.findOne({ id_posts: id_post }, (err, posting) => {
+    if(err){
+      console.log(err)
+    }else{
+      res.send(posting)
+    }
+  });
+});
+
+//get trending posting data
+router.post("/posting/trending", (req, res) => {
+  let tanggal = new Date()
+  let date = tanggal.toDateString();
+  let tgl = date
+  console.log(tgl)
+  Posting.find({ date: tgl}).limit(6).sort({thanks: -1}).exec(function(err,posting){
+    if(err){
+      console.log(err)
+    }else{
+      res.send(posting)
+    }
+  })
+});
+
+//get all comment listed
+router.get("/comments", (req, res) => {
+  Comments.find({}, (err, obj_comment) => {
+    if(err){
+      console.log(err)
+    }else{
+      var commentMap = {};
+    obj_comment.forEach(function(comments) {
+      commentMap[comments._id] = comments;
+    });
+    res.send(obj_comment);
+    }
+  })
+});
+
+//get all comment by id post 
+router.post("/comments", (req, res) => {
+  var id_post = req.body.id_posts
+  Comments.find({id_posts: id_post}, (err, obj_comment) => {
+    if(err){
+      console.log(err)
+    }else{
+      var commentMap = {};
+    obj_comment.forEach(function(comments) {
+      commentMap[comments._id] = comments;
+    });
+    res.send(obj_comment);
+    }
+  })
+});
+
+//posting comment
+router.post("/posts/comments", (req, res) => {
+  let username = req.body.username;
+  let tanggal = new Date();
+  let date = tanggal.toDateString();
+  let jam = tanggal.getHours();
+  let menit = tanggal.getMinutes();
+  User.findOne({ username: username }, (err, user) => {
+    if(err){
+      console.log(err)
+    }else{
+      let id = req.body.id_posts;
+      Posting.findOne({id_posts: id}, (err, user_post) => {
+        if(err){
+          console.log(err)
+        }else{
+          let email_post = user_post.email
+          let email = req.body.email;
+          let comment = req.body.comment;
+        
+          let foto = user.foto;
+          let total_posts = user.total_posts;
+          let total_friends = user.total_friends;
+          let total_thanks = user.total_thanks;
+          let komen = user_post.comment;
+    
+          let postcomment = {
+            id_posts: id,
+            email_post: email_post,
+            email: email,
+            username: username,
+            comment: comment,
+            status: "publish",
+            foto: foto,
+            total_posts: total_posts,
+            total_friends: total_friends,
+            total_thanks: total_thanks,
+            seen: 1,
+            date: date,
+            jam: jam,
+            menit: menit,
+          };
+          let commenting = new Comments(postcomment);
+          commenting.save();
+          
+          let total_comment = komen + 1;
+          Posting.findOneAndUpdate({ id_posts: id }, { $set: { comment: total_comment } },{upsert: true}, (err, kom) => {
+            if(err){
+             console.log(err) 
+            }else{
+              console.log(kom);
+            }
+          });
+          console.log(email, "Membuat komentar");
+          res.send(commenting);
+          }
+        })
+    }
+    })
+  });
+
+//api Delete Comment
+router.delete("/comment/delete", (req, res) => {
+  let email = req.body.email;
+  let id = req.body._id;
+  let postid = req.body.id_posts;
+  Comments.deleteOne({ email: email, _id: id }, () => {
+    Posting.findOne({ id_posts: postid }, (err, hasil) => {
+      if(err){
+        console.log(err)
+      }else{
+        let komen = hasil.comment;
+        let total_comment = komen - 1;
+        Posting.findOneAndUpdate({ id_posts: postid }, { $set: { comment: total_comment } }, (err, coment) => {
+          if(err){
+            console.log(err)
+          }else{
+            console.log(coment)
+          }
+        });
+      }
+    });
+  });
+});
+
+
+//api notif Comment
+router.post("/notif/comment",(req, res) => {
+  let email = req.body.email
+    Comments.count({ email_post: email, seen: 1,email: { $ne: email }}, (err,notif) => {
+      if(err){
+        console.log(err)
+      }else{
+        res.send(""+notif)
+      }
+    })
+})
+
+//api notif seen comment
+router.put("/notif/comment/seen", (req, res) => {
+  let email = req.body.email;
+  Comments.update({ email_post: email }, { $set: { seen: 0 } }, { multi: true }, (err, sukses) => {
+    if(err){
+      console.log(err)
+    }else{
+      res.send(sukses)
+    }
+  });
+});
+
+//api notif Comment Notice
+router.post("/notif/comment/notice",(req, res) => {
+  let email = req.body.email
+    Comments.find({ email_post: email,email: { $ne: email }}, (err,notif) => {
+      if(err){
+        console.log(err)
+      }else{
+        res.send(notif)
+      }
+    })
+})
+
 // api user posting
-router.post("/posting", (req, res) => {
+router.post("/posting", upload.single('fotocontent'), (req, res) => {
   let email = req.body.email;
   let content = req.body.content;
   let thanks = 0;
   let tags = req.body.tags;
+  let kode_post = req.body.kode_post
   let tanggal = new Date();
   let date = tanggal.toDateString();
   let jam = tanggal.getHours();
@@ -51,9 +251,51 @@ router.post("/posting", (req, res) => {
   User.findOne({ email: email }, (err, user) => {
     Posting.count({}, (err, postingan) => {
       let id = postingan;
+      let foto = user.foto
       let username = user.username;
       let posts = user.total_posts;
       let total_post;
+      if(kode_post == 1){
+        let fotocontent = req.file.filename+'.jpg'
+        var file = __dirname + "/../../public/posting/foto/" + fotocontent;
+        fs.readFile(req.file.path, function (err, data) {
+          fs.writeFile(file, data, function (err) {
+            if(err){
+              res.send(err)
+            }else{
+              posts === 0 ? (total_post = 1) : (total_post = posts + 1);
+      let id_post = id + 1;
+      let post = {
+        id_posts: id_post,
+        email: email,
+        username: username,
+        content: content,
+        fotocontent: fotocontent,
+        date: date,
+        jam: jam,
+        menit: menit,
+        thanks: thanks,
+        comment: 0,
+        tags: tags,
+        status: "publish",
+        foto: foto
+      }
+      let posting = new Posting(post);
+      posting.save();
+      console.log(email, "Membuat Postingan baru");
+      res.send(posting);
+
+      User.findOneAndUpdate({ email: email }, { $set: { total_posts: total_post } }, (err, posts) => {
+        if(err){
+          console.log(err)
+        }else{
+          console.log(posts);
+        }
+      });
+            }
+          });
+        });
+      }else{
       posts === 0 ? (total_post = 1) : (total_post = posts + 1);
       let id_post = id + 1;
       let post = {
@@ -61,12 +303,15 @@ router.post("/posting", (req, res) => {
         email: email,
         username: username,
         content: content,
+        fotocontent: null,
         date: date,
         jam: jam,
         menit: menit,
         thanks: thanks,
+        comment: 0,
         tags: tags,
-        status: "publish"
+        status: "publish",
+        foto: foto
       };
       let posting = new Posting(post);
       posting.save();
@@ -74,9 +319,14 @@ router.post("/posting", (req, res) => {
       res.send(posting);
 
       User.findOneAndUpdate({ email: email }, { $set: { total_posts: total_post } }, (err, posts) => {
-        console.log(posts);
+        if(err){
+          console.log(err)
+        }else{
+          console.log(posts);
+        }
       });
-    });
+    }
+  });
   });
 });
 
@@ -85,59 +335,64 @@ router.put("/posting/thanks/up", (req, res) => {
   let email = req.body.email;
   let id = req.body._id;
   Thank.count( { email: email, idpost: id }, (err, thank) => {
-    if(thank == 1){
-      User.findOne({ email : email }, (err, hasil) => {
-        let thanks = hasil.total_thanks;
-        let count_thanks = thanks - 1;
-        User.findOneAndUpdate({ email: email }, { $set: { total_thanks: count_thanks } }, { new: true }, (err, result) =>
-          console.log("added", result)
-        );
-        Thank.deleteOne({email : email, idpost : id})
-        .then( () => {
-          Posting.findOne({ email, _id: id }, (err, post) => {
-            let myPost = post.thanks;
-            Posting.findOneAndUpdate(
-              { email: email, _id: id },
-              { $set: { thanks: myPost - 1 } },
-              { new: true },
-              (err, thanked) => {
-                let kode = {
-                  kode: 0
+    if(err){
+      console.log(err)
+    }else{
+      if(thank == 1){
+        User.findOne({ email : email }, (err, hasil) => {
+          let thanks = hasil.total_thanks;
+          let count_thanks = thanks - 1;
+          User.findOneAndUpdate({ email: email }, { $set: { total_thanks: count_thanks } }, { new: true }, (err, result) =>
+            console.log("added", result)
+          );
+          Thank.deleteOne({email : email, idpost : id})
+          .then( () => {
+            Posting.findOne({ email, _id: id }, (err, post) => {
+              let myPost = post.thanks;
+              Posting.findOneAndUpdate(
+                { email: email, _id: id },
+                { $set: { thanks: myPost - 1 } },
+                { new: true },
+                (err, thanked) => {
+                  let kode = {
+                    kode: 0
+                  }
+                  res.send({thank:thanked, kode:kode});
                 }
-                res.send({thank:thanked, kode:kode});
-              }
-            );
+              );
+            });
           });
-        });
-        });
-    }else {
-      User.findOne({ email : email }, (err, hasil) => {
-        let thanks = hasil.total_thanks;
-        let count_thanks = thanks + 1;
-        User.findOneAndUpdate({ email: email }, { $set: { total_thanks: count_thanks } }, { new: true }, (err, result) =>
-          console.log("added", result)
-        );
-        let thanks_user = {
-          idpost : id,
-          email : email
-        }
-        var ty = new Thank(thanks_user)
-        ty.save()
-          Posting.findOne({ email, _id: id }, (err, post) => {
-            let myPost = post.thanks;
-            Posting.findOneAndUpdate(
-              { email: email, _id: id },
-              { $set: { thanks: myPost + 1 } },
-              { new: true },
-              (err, thanked) => {
-                let kode = {
-                  kode: 1
+          });
+      }else {
+        User.findOne({ email : email }, (err, hasil) => {
+          let thanks = hasil.total_thanks;
+          let count_thanks = thanks + 1;
+          User.findOneAndUpdate({ email: email }, { $set: { total_thanks: count_thanks } }, { new: true }, (err, result) =>
+            console.log("added", result)
+          );
+          let thanks_user = {
+            idpost : id,
+            email : email
+          }
+          var ty = new Thank(thanks_user)
+          ty.save()
+            Posting.findOne({ email, _id: id }, (err, post) => {
+              let myPost = post.thanks;
+              Posting.findOneAndUpdate(
+                { email: email, _id: id },
+                { $set: { thanks: myPost + 1 } },
+                { new: true },
+                (err, thanked) => {
+                  let kode = {
+                    kode: 1
+                  }
+                  res.send({thank:thanked, kode:kode});
                 }
-                res.send({thank:thanked, kode:kode});
-              }
-            );
+              );
+            });
           });
-        });
+    }
+
     }
   });
 });
@@ -148,81 +403,114 @@ router.put("/posting/thanks/post/user", (req, res) => {
   let username = req.body.username
   let id = req.body._id;
   Thank.count( { email: email, idpost: id }, (err, thank) => {
-    if(thank == 1){
-      User.findOne({username : username}, (err, user) => {
-        let email_user = user.email
-      User.findOne({ email : email_user }, (err, hasil) => {
-        let thanks = hasil.total_thanks;
-        let count_thanks = thanks - 1;
-        User.findOneAndUpdate({ email: email_user }, { $set: { total_thanks: count_thanks } }, { new: true }, (err, result) =>
-          console.log("added", result)
-        );
-        Thank.deleteOne({ email: email, idpost: id})
-        .then(() => {
-          Posting.findOne({ email : email_user, _id: id }, (err, post) => {
-            let myPost = post.thanks;
-            Posting.findOneAndUpdate(
-              { email: email_user, _id: id },
-              { $set: { thanks: myPost - 1 } },
-              { new: true },
-              (err, thanked) => {
-                let kode = {
-                  kode: 0
+    if(err){
+      console.log(err)
+    }else{
+      if(thank == 1){
+        User.findOne({username : username}, (err, user) => {
+          if(err){
+            console.log(err)
+          }
+          let email_user = user.email
+          User.findOne({ email : email_user }, (err, hasil) => {
+          if(err){
+            console.log(err)
+          }
+          let thanks = hasil.total_thanks;
+          let count_thanks = thanks - 1;
+          User.findOneAndUpdate({ email: email_user }, { $set: { total_thanks: count_thanks } }, { new: true }, (err, result) =>
+            console.log("added", result)
+          );
+          Thank.deleteOne({ email: email, idpost: id})
+          .then(() => {
+            Posting.findOne({ email : email_user, _id: id }, (err, post) => {
+              let myPost = post.thanks;
+              Posting.findOneAndUpdate(
+                { email: email_user, _id: id },
+                { $set: { thanks: myPost - 1 } },
+                { new: true },
+                (err, thanked) => {
+                  let kode = {
+                    kode: 0
+                  }
+                  res.send({thank:thanked, kode:kode});
                 }
-                res.send({thank:thanked, kode:kode});
+              );
+            });
+          })
+          })
+        });
+      }else {
+        User.findOne({username : username}, (err, user) => {
+          let email_user = user.email
+        User.findOne({ email : email_user }, (err, hasil) => {
+          let thanks = hasil.total_thanks;
+          let count_thanks = thanks + 1;
+          User.findOneAndUpdate({ email: email_user }, { $set: { total_thanks: count_thanks } }, { new: true }, (err, result) =>
+            console.log("added", result)
+          );
+          let thanks_user = {
+            idpost : id,
+            email : email
+          }
+          var ty = new Thank(thanks_user)
+          ty.save()
+            Posting.findOne({ email : email_user, _id: id }, (err, post) => {
+              if(err){
+                console.log(err)
               }
-            );
-          });
-        })
-        })
-      });
-    }else {
-      User.findOne({username : username}, (err, user) => {
-        let email_user = user.email
-      User.findOne({ email : email_user }, (err, hasil) => {
-        let thanks = hasil.total_thanks;
-        let count_thanks = thanks + 1;
-        User.findOneAndUpdate({ email: email_user }, { $set: { total_thanks: count_thanks } }, { new: true }, (err, result) =>
-          console.log("added", result)
-        );
-        let thanks_user = {
-          idpost : id,
-          email : email
-        }
-        var ty = new Thank(thanks_user)
-        ty.save()
-          Posting.findOne({ email : email_user, _id: id }, (err, post) => {
-            let myPost = post.thanks;
-            Posting.findOneAndUpdate(
-              { email: email_user, _id: id },
-              { $set: { thanks: myPost + 1 } },
-              { new: true },
-              (err, thanked) => {
-                let kode = {
-                  kode: 1
+              let myPost = post.thanks;
+              Posting.findOneAndUpdate(
+                { email: email_user, _id: id },
+                { $set: { thanks: myPost + 1 } },
+                { new: true },
+                (err, thanked) => {
+                  if(err){
+                    console.log(err)
+                  }else{
+                    let kode = {
+                      kode: 1
+                    }
+                    res.send({thank:thanked, kode:kode});
+                  }
                 }
-                res.send({thank:thanked, kode:kode});
-              }
-            );
-          });
-        })
-      });
-    }
-  });
+              );
+            });
+          })
+        });
+      }
+      }
+    })
 });
 
 //api Delete Posting
 router.delete("/posting/delete", (req, res) => {
   let email = req.body.email;
   let id = req.body._id;
+  let postid = req.body.id_posts
   Posting.deleteOne({ email: email, _id: id }, () => {
     User.findOne({ email : email }, (err, hasil) => {
+      if(err){
+        console.log(err)
+      }
       let thanks = hasil.total_posts;
       let count_thanks = thanks - 1;
       User.findOneAndUpdate({ email: email }, { $set: { total_posts: count_thanks } }, { new: true }, (err, result) => {
-        console.log("added", result)
-      });
-    });
+        if(err){
+          console.log(err)
+        }else{
+          console.log(result)
+        }
+      })
+    }).then(() => {
+      Comments.remove({ id_posts: postid, email: email }, (err, result) => {
+        if(err){
+          console.log(err)
+        }else{
+          console.log(result)
+        }
+      })
+    })
   });
 });
 
@@ -231,43 +519,99 @@ router.delete("/posting/delete", (req, res) => {
 router.get("/posting/thank", (req, res) => {
   let email = req.body.email;
   Posting.find({ email: email }, (err, thank) => {
-    res.send(thank);
-    console.log(email, "melihat posting di profile");
-  });
+    if(err){
+      console.log(err)
+    }else{
+      res.send(thank)
+    }
+  })
 });
 
 //api view posting di profile
 router.post("/posting/profile", (req, res) => {
   let email = req.body.email;
-  Posting.find({ email: email }, (err, posting) => {
-    res.send(posting);
-    console.log(email, "melihat posting di profile");
-  });
+  Posting.find({ email: email }).sort({_id: -1}).exec(function(err,posting){
+    if(err){
+      console.log(err)
+    }else{
+      res.send(posting)
+    }
+  })
+});
+
+//api update posting
+router.post("/posting/update", (req, res) => {
+  let id = req.body.id;
+  let content = req.body.content;
+  let tags = req.body.tags;
+  let kode_post = req.body.kode_post
+      if(kode_post == 0){
+              Posting.update({ _id: id }, { $set: {content: content, tags: tags, fotocontent: null}}, {new : true}, function() {
+                console.log("Update foto");
+              });
+      }else{
+      Posting.update({ _id: id }, { $set: {content: content, tags: tags}}, {new : true}, function() {
+        console.log("Update");
+      });
+    }
+});
+
+//api detail posting for update
+router.post("/posting/detail", (req, res) => {
+  let id = req.body._id;
+  Posting.findOne({ _id: id }, (err,posting) => {
+    if(err){
+      console.log(err)
+    }else{
+      res.send(posting)
+    }
+  })
+});
+
+//api posting menurut tag
+router.post("/posting/tag", (req, res) => {
+  let tag = req.body.tag;
+  Posting.find({ tags: tag }).sort({_id: -1}).exec(function(err,posting){
+    if(err){
+      console.log(err)
+    }else{
+      res.send(posting)
+    }
+  })
 });
 
 //api posting menurut tag
 router.post("/posting/tag", (req, res) => {
   let tag = req.body.tag;
   Posting.find({ tags: tag }, (err, posting) => {
-    res.send(posting);
-    console.log(tag, "melihat posting di profile");
-  });
+    if(err){
+      console.log(err)
+    }else{
+      res.send(posting)
+    }
+  })
 });
 
-//api posting menurut tag
-router.post("/posting/tag", (req, res) => {
+router.post("/posting/tag/limit", (req, res) => {
   let tag = req.body.tag;
-  Posting.find({ tags: tag }, (err, posting) => {
-    res.send(posting);
-    console.log(tag, "melihat posting di profile");
-  });
+  Posting.find({ tags: tag }).limit(3).sort({_id: -1}).exec(function(err,posting){
+    if(err){
+      console.log(err)
+    }else{
+      res.send(posting)
+    }
+  })
 });
 
 //api posting Home Other
 router.post("/posting/home/other", (req, res) => {
   let tag = "other"
   Posting.find({tags: tag}).sort({_id: -1}).exec(function(err,posting){
-    res.send(posting)
+    if(err){
+      console.log(err)
+    }else{
+      res.send(posting)
+    }
   })
 });
 
@@ -275,7 +619,11 @@ router.post("/posting/home/other", (req, res) => {
 router.post("/posting/home/quotes", (req, res) => {
   let tag = "quotes"
   Posting.find({tags: tag}).sort({_id: -1}).exec(function(err,posting){
-    res.send(posting)
+    if(err){
+      console.log(err)
+    }else{
+      res.send(posting)
+    }
   })
 });
 
@@ -283,7 +631,11 @@ router.post("/posting/home/quotes", (req, res) => {
 router.post("/posting/home/computer-gadget", (req, res) => {
   let tag = "computer-gadget"
   Posting.find({tags: tag}).sort({_id: -1}).exec(function(err,posting){
-    res.send(posting)
+    if(err){
+      console.log(err)
+    }else{
+      res.send(posting)
+    }
   })
 });
 
@@ -291,7 +643,11 @@ router.post("/posting/home/computer-gadget", (req, res) => {
 router.post("/posting/home/family-love", (req, res) => {
   let tag = "family-love"
   Posting.find({tags: tag}).sort({_id: -1}).exec(function(err,posting){
-    res.send(posting)
+    if(err){
+      console.log(err)
+    }else{
+      res.send(posting)
+    }
   })
 });
 
@@ -299,7 +655,11 @@ router.post("/posting/home/family-love", (req, res) => {
 router.post("/posting/home/fact-rumour", (req, res) => {
   let tag = "fact-rumour"
   Posting.find({tags: tag}).sort({_id: -1}).exec(function(err,posting){
-    res.send(posting)
+    if(err){
+      console.log(err)
+    }else{
+      res.send(posting)
+    }
   })
 });
 
@@ -307,7 +667,11 @@ router.post("/posting/home/fact-rumour", (req, res) => {
 router.post("/posting/home/bussiness-work", (req, res) => {
   let tag = "business-work"
   Posting.find({tags: tag}).sort({_id: -1}).exec(function(err,posting){
-    res.send(posting)
+    if(err){
+      console.log(err)
+    }else{
+      res.send(posting)
+    }
   })
 });
 
@@ -315,7 +679,11 @@ router.post("/posting/home/bussiness-work", (req, res) => {
 router.post("/posting/home/fashion-lifestyle", (req, res) => {
   let tag = "fashion-lifestyle"
   Posting.find({tags: tag}).sort({_id: -1}).exec(function(err,posting){
-    res.send(posting)
+    if(err){
+      console.log(err)
+    }else{
+      res.send(posting)
+    }
   })
 });
 
@@ -323,15 +691,23 @@ router.post("/posting/home/fashion-lifestyle", (req, res) => {
 router.post("/posting/home/riddles", (req, res) => {
   let tag = "riddles"
   Posting.find({tags: tag}).sort({_id: -1}).exec(function(err,posting){
-    res.send(posting)
+    if(err){
+      console.log(err)
+    }else{
+      res.send(posting)
+    }
   })
 });
 
 router.post("/posting/people", (req, res) => {
   let username = req.body.username;
-  Posting.find({ username: username }, (err, posting) => {
-    res.send(posting);
-  });
+  Posting.find({username: username}).sort({_id: -1}).exec(function(err,posting){
+    if(err){
+      console.log(err)
+    }else{
+      res.send(posting)
+    }
+  })
 });
 
 module.exports = router;

@@ -17,13 +17,24 @@ router.use(cors());
 //api search people
 router.post("/friend", (req, res) => {
   let emails = req.body.email;
-  User.find({ email: { $ne: emails } }, (err, user) => {
+  User.find({ email: { $ne: emails }}, (err, user) => {
     Foto.find({ email: { $ne: emails } }, (err, foto) => {
-      res.send({user: user, foto: foto});
+      res.send({user: JSON.stringify(user), foto: JSON.stringify(foto)});
     });
   });
   
 });
+
+//api search people
+router.post("/search", (req, res) => {
+  var username = req.body.username;
+  var way = "Way"
+  var official = "Official"
+  User.find({ $or: [{ username: {$regex:username,$ne:way}},{ first_name: {$regex:username,$ne:way}},{ last_name: {$regex:username,$ne:official}}]}, (err,user) => {
+    res.send(user)
+  })
+});
+
 
 router.post("/people/profile", (req, res) => {
   let email = req.body;

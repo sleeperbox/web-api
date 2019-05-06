@@ -19,50 +19,45 @@ router.get("/", (req, res) => {
 //api tags
 router.get("/tags", (req, res) => {
   var tags = [
-    {
-      text: "Pilih Kategori",
-      value: "null",
-      image: { avatar: true, src: "http://192.168.1.14/assets/icons/tags/pilihkategori.png" }
-    },
-    {
-      text: "Komputer & Gadget",
+    { 
+      text: "Computer & Gadget",
       value: "computer-gadget",
-      image: { avatar: true, src: "http://192.168.1.14/assets/icons/tags/komputergadget.png" }
+      image: { avatar: true, src: "http://aprizal.com/public/icon/icon/komp.png" }
     },
     {
-      text: "Keluarga & Asmara",
+      text: "Family & Love",
       value: "family-love",
-      image: { avatar: true, src: "http://192.168.1.14/assets/icons/tags/keluargaasmara.png" }
+      image: { avatar: true, src: "http://aprizal.com/public/icon/icon/family.png" }
     },
     {
-      text: "Fakta & Rumor",
+      text: "Fact & Rumour",
       value: "fact-rumour",
-      image: { avatar: true, src: "http://192.168.1.14/assets/icons/tags/faktarumor.png" }
+      image: { avatar: true, src: "http://aprizal.com/public/icon/icon/f&r.png" }
     },
     {
-      text: "Bisnis & Pekerjaan",
+      text: "Business & Work",
       value: "business-work",
-      image: { avatar: true, src: "http://192.168.1.14/assets/icons/tags/bisnispekerjaan.png" }
+      image: { avatar: true, src: "http://aprizal.com/public/icon/icon/bisnis.png" }
     },
     {
-      text: "Fashion & Gaya Hidup",
+      text: "Fashion & Lifestyle",
       value: "fashion-lifestyle",
-      image: { avatar: true, src: "http://192.168.1.14/assets/icons/tags/fashion.png" }
+      image: { avatar: true, src: "http://aprizal.com/public/icon/icon/fashion.png" }
     },
     {
       text: "Quotes",
       value: "quotes",
-      image: { avatar: true, src: "http://192.168.1.14/assets/icons/tags/quotes.png" }
+      image: { avatar: true, src: "http://aprizal.com/public/icon/icon/quotes.png" }
     },
     {
       text: "Riddles",
       value: "riddles",
-      image: { avatar: true, src: "http://192.168.1.14/assets/icons/tags/riddle.png" }
+      image: { avatar: true, src: "http://aprizal.com/public/icon/icon/riddle.png" }
     },
     {
-      text: "Lainya",
+      text: "Other",
       value: "other",
-      image: { avatar: true, src: "http://192.168.1.14/assets/icons/tags/lainnya.png" }
+      image: { avatar: true, src: "http://aprizal.com/public/icon/icon/other.png" }
     }
   ];
   res.send(tags);

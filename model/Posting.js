@@ -14,6 +14,9 @@ const PostingSchema = new Schema({
   content: {
     type: String
   },
+  fotocontent: {
+    type: String
+  },
   date : {
     type: String
   },
@@ -26,11 +29,17 @@ const PostingSchema = new Schema({
   thanks : {
     type: Number
   },
+  comment : {
+    type: Number
+  },
   tags : {
     type : String
   },
   status : {
     type : String
+  },
+  foto: {
+    type: String
   }
 })
 
