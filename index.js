@@ -29,6 +29,7 @@ app.use("/api", require("./routes/tags/tags"));
 app.use("/api", require("./routes/ClearData/clear"));
 app.use("/api", require("./routes/posting/posting"));
 app.use("/api", require("./routes/user/uploadfoto"));
+app.use("/api", require("./routes/user/rank"));
 app.use("/api", require("./routes/message/Message"));
 app.use("/api/profile", require("./routes/profile/buttom-menu"));
 app.use("/api/profile", require("./routes/profile/more-category"));
