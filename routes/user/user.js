@@ -166,7 +166,7 @@ router.post("/register", (req, res) => {
   })
 });
 
-//api register no telepon web
+//api register Pake No telepon web
 router.post("/register/phone", (req, res) => {
   let phone_number = req.body.phone_number;
   let username = req.body.username;
