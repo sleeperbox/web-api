@@ -7,7 +7,7 @@ const User = require("../../model/User");
 const Thank = require("../../model/Thanks");
 const Comments = require("../../model/Comment");
 const multer = require("multer");
-const upload = multer({dest: '/public'});
+const upload = multer({dest: __dirname + '/public'});
 const fs = require("fs");
 
 router.use(
