@@ -284,7 +284,7 @@ router.put("/user/tags", (req, res) => {
   let last_name = req.body.last_name;
   let phone_number = req.body.phone_number;
   let gender = req.body.gender;
-  let tags = [req.body.tags];
+  let tags = req.body.tags;
   User.findOneAndUpdate(
     { email: email },
     {
@@ -293,7 +293,7 @@ router.put("/user/tags", (req, res) => {
       last_name: last_name,
       phone_number: phone_number,
       jenis_kelamin: gender
-    },
+    }, {multi: true},
     (err,user) => {
       if(err){
         console.log(err)

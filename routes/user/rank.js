@@ -47,8 +47,7 @@ router.post("/user/point", (req,res) => {
     if(err){
       console.log(err)
     }else{
-      let points = point.total_score
-      res.send("" +points)
+      res.send(point)
     }
   })
 })
