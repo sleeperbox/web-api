@@ -278,7 +278,7 @@ router.post("/register/phone", (req, res) => {
 });
 
 //api Upadate User
-router.put("/user/tags", (req, res) => {
+router.put("/user/updates", (req, res) => {
   let email = req.body.email;
   let first_name = req.body.first_name;
   let last_name = req.body.last_name;
