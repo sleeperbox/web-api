@@ -149,8 +149,8 @@ router.post("/register", (req, res) => {
     let kode = user + 1
     let pesan = {
       kode_chat: kode,
-      username_user1: "Way",
-      name_user1: "Way Official",
+      username_user1: "way",
+      name_user1: "way Official",
       username_user2: username,
       name_user2: name,
       message: "Welcome! Enjoy Your Experience on WAY! Application",
@@ -260,8 +260,8 @@ router.post("/register/phone", (req, res) => {
       let kode = user + 1
     let pesan = {
       kode_chat: kode,
-      username_user1: "Way",
-      name_user1: "Way Official",
+      username_user1: "way",
+      name_user1: "way Official",
       username_user2: username,
       name_user2: name,
       message: "Welcome! Enjoy Your Experience on WAY! Application",
@@ -378,71 +378,6 @@ router.put("/user/ubahpassword", function(req, res) {
       console.log(email, "Password Lama Salah");
       res.send("Password Lama Salah");
     }
-  });
-});
-
-//api Rank User
-router.post("/user/rank", function(req, res) {
-  let date = new Date();
-  let tgl = date.toDateString();
-  let email = req.body.email
-  Ranking.find().sort({total_score: -1}).exec(function(err,a){
-    if(err){
-      console.log(err)
-    }
-    Rank.findOne({email : email}, (err, tg) => {
-      if(!tg){
-        Rank.deleteMany({}, () => {
-            Ranking.count({}, (err, count) => {
-            if(err){
-              console.log(err)
-            }else{
-              for(var i = 0; i < count; i++){
-                var ranking_user = {
-                  email : a[i].email,
-                  rank : i,
-                  tgl : tgl
-                }
-                var b = new Rank(ranking_user)
-                b.save()
-              }
-            }
-            Rank.find({ email : email}, (aww,rank_user) =>{
-            if(aww){
-              console.log(aww)
-            }else{
-              res.send(rank_user)
-            }
-            })
-          })
-        })
-      }else if(tg.tgl == tgl){
-        Rank.find({ email : email}, (aww,rank_user) =>{
-          res.send(rank_user)
-        })
-      }else{
-        Rank.deleteMany({}, () => {
-          Ranking.count({}, (err, count) => {
-          if(err){
-            console.log(err)
-          }else{
-            for(var i = 0; i < count; i++){
-            var ranking_user = {
-              email : a[i].email,
-              rank : i,
-              tgl : tgl
-            }
-            var b = new Rank(ranking_user)
-            b.save()
-          }
-          Rank.find({ email : email}, (aww,rank_user) =>{
-          res.send(rank_user)
-          })
-        }
-      })
-      })
-      }
-    })
   });
 });
 
