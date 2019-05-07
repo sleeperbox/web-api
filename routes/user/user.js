@@ -69,7 +69,7 @@ router.post("/register", (req, res) => {
   }else if( noPP == 2){
     PP = "default profil 2.png"
   }else if( noPP == 3){
-    PP = "default profil 3 .png"
+    PP = "default profil 3.png"
   }else if( noPP == 4){
     PP = "default profil 4.png"
   }else if( noPP == 5){
@@ -186,7 +186,7 @@ router.post("/register/phone", (req, res) => {
   }else if( noPP == 2){
     PP = "default profil 2.png"
   }else if( noPP == 3){
-    PP = "default profil 3 .png"
+    PP = "default profil 3.png"
   }else if( noPP == 4){
     PP = "default profil 4.png"
   }else if( noPP == 5){
